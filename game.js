@@ -14,6 +14,9 @@
     var img = new Image();
     
     var ptime = 0;
+    var numOfRooms = 25;
+    var rooms = [];
+    var tHelp = new TileHelper();
     
     /**
      * Cycle through different browsers to get correct animation frame function
@@ -29,15 +32,16 @@
         };
     })();
     
-    ////////////////////////////////////////////
-    //----------------------------------------//
-    //---------------Game Loop----------------//
-    //----------------------------------------//
-    ////////////////////////////////////////////
-    
-    gameLoop();
-    
-    
+    window.onload = (function() {
+        for(var i = 0; i < numOfRooms; i++) {
+            var p = new Point(Math.floor(Math.random() * 1200), Math.floor(Math.random() * 680));
+            
+            var gridPos = tHelp.pixelToGrid(p);
+            var r = new Room(gridPos.x * tHelp.W, gridPos.y * tHelp.H, Math.floor(Math.random() * 96 + 32), Math.floor(Math.random() * 96 + 32));
+            console.log(r.x);
+            rooms.push(r);
+        }
+    })();
     ////////////////////////////////////////////
     //----------------------------------------//
     //-----------FUNCTIONS AND SHIT-----------//
@@ -57,7 +61,7 @@
         this.anchorX = 0;
         this.anchorY = 0;
         this.hasLoaded = false;
-        
+
         var me = this;
         /**
          * Wait until image has loaded to set anchor points
@@ -68,7 +72,7 @@
             me.anchorY = this.height/2;   
         }
         this.img.src = url;
-        
+
         /**
          * Draw function for sprite, including translate bullshit
          * @param {graphics} g [[Description]]
@@ -83,6 +87,98 @@
             g.restore();
         }
     }
+    
+    function TileHelper() {
+        this.W = 32;
+        this.H = 32;
+        this.halfW = this.W / 2;
+        this.halfH = this.H / 2;
+        
+        this.gridToPixel = function(p) {
+            return new Point(point.x * this.W, point.y * this.H);
+        }
+        
+        this.pixelToGrid = function(p) {
+            return new Point(Math.floor(p.x/this.W), Math.floor(p.y/this.H));   
+        }
+    }
+    
+    function Tile(X, Y) {
+        this.X = X;
+        this.Y = Y;
+        this.TERRAIN = 0;
+        
+        this.draw = function(g) {
+            g.fillStyle = "#000";
+            g.fillRect(this.X * tHelp.W, this.Y * tHelp.H, tHelp.W, tHelp.H);
+        }
+        
+        this.getCenter = function() {
+            var p = new Point(0, 0);
+            
+            p = tHelp.gridToPixel(this.X, this.Y);
+            p.x += tHelp.halfW;
+            p.y += tHelp.halfH;
+            
+            return p;
+        }
+    }
+    
+    function Point(x, y) {
+        this.x = x;
+        this.y = y;
+        
+        this.get = function() {
+            return new Point(this.x, this.y);   
+        }
+        
+        this.getUp = function() {
+            return new Point(this.x, this.y - 1);
+        }
+        
+        this.getDown = function() {
+            return new Point(this.x, this.y+1);   
+        }
+        
+        this.getLeft = function() {
+            return new Point(this.x-1, this.y);   
+        }
+        
+        this.getRight = function() {
+            return new Point(this.x+1, this.y);   
+        }
+        
+        this.toString = function() {
+            return "" + this.x + ", " + this.y;   
+        }
+    }
+    
+    
+    function Room(x, y, w, h) {
+        this.width = w;
+        this.height = h;
+        this.x = x;
+        this.y = y;
+        this.minX = x;
+        this.maxX = x + w;
+        this.minY = y;
+        this.maxY = y + h;
+        
+        this.draw = function(g) {
+            g.fillStyle = "#000";            
+            g.fillRect(this.x, this.y, this.width, this.height);
+        }
+    }   
+    
+    
+    ////////////////////////////////////////////
+    //----------------------------------------//
+    //---------------Game Loop----------------//
+    //----------------------------------------//
+    ////////////////////////////////////////////
+    
+    
+    gameLoop();
     
     /**
      * Main Game Loop that repeates every frame 
@@ -104,7 +200,6 @@
      * Update every frame
      */
     function update(){
-        
     }
     
     /**
@@ -112,8 +207,10 @@
      */
     function draw(){
         //clear screen
-        graphics.clearRect(0,0,canvas.width,canvas.height);
-        
+         graphics.clearRect(0,0,canvas.width,canvas.height);
+        for(var i = rooms.length - 1; i >= 0; i--) {
+            rooms[i].draw(graphics);   
+        }
     }
     
 })();
