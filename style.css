@@ -1,0 +1,74 @@
+/*******************************************/
+/*-----------------------------------------*/
+/*-------STYLE SHEET FOR GORDON YASMAR-----*/
+/*-----------------------------------------*/
+/*******************************************/
+
+/********************************/
+/*--------------TEAM------------*/
+/********************************/
+/*
+    Jonathan Champion
+    Eric Selover
+
+*/
+
+
+/********************************/
+/*----------Play Canvas---------*/
+/********************************/
+canvas {
+            border: solid 1px #444;
+}
+/********************************/
+/*---------FONT RELATED---------*/
+/********************************/
+p, a, li, h1, h2, h3, h4, h5 {
+    font-family: "helvetica", "arial", sans-serif;
+    font-size: 16px;
+    color: #25a5e5;
+    font-style:normal;
+    text-decoration: none;
+    text-align: left;
+}
+a:hover {
+    color: #e5901a;
+    text-decoration: underline;
+}
+
+/********************************/
+/*--------Main Body Stuff-------*/
+/********************************/
+html{
+    
+}
+body{
+    
+}
+header{
+    
+}
+footer{
+    
+}
+
+/********************************/
+/*---------Nav Bar Stuff--------*/
+/********************************/
+nav{
+    
+}
+nav ul {
+    float: right;
+}
+nav ul li {
+    float: right;
+    list-style: none;
+/*    line-height: 100px;*/
+    margin-left: 15px;
+    text-align: right;
+    
+}
+header nav ul li {
+    text-transform: uppercase;
+}
