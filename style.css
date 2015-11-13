@@ -26,14 +26,38 @@ canvas {
 p, a, li, h1, h2, h3, h4, h5 {
     font-family: "helvetica", "arial", sans-serif;
     font-size: 16px;
-    color: #25a5e5;
+    color: #1d2326;
     font-style:normal;
     text-decoration: none;
     text-align: left;
+    margin: 0;
 }
 a:hover {
-    color: #e5901a;
+    text-decoration: none;
+}
+#title h1 {
+    padding-top: 18px;
+    font-size: 44px;
+    text-align: right;
+    text-transform: uppercase;
+    
+}
+#title h2 {
+    color: #6a6a61;
+    font-size: 30px;
+    text-align: right;
+    
+}
+header nav ul li a {
+    color: #6a6a61;
+    font-size: 22px;
+    text-transform: uppercase;
+    line-height: 100px;
+    
+}
+header nav ul li a:hover {
     text-decoration: underline;
+    color: #1d2326;
 }
 
 /********************************/
@@ -43,10 +67,15 @@ html{
     
 }
 body{
-    
+    background: #dddcc5;
 }
 header{
     
+}
+#main{
+    height: 500px;
+    background: #1d2326;
+    margin-bottom: 0;
 }
 footer{
     
@@ -56,19 +85,30 @@ footer{
 /*---------Nav Bar Stuff--------*/
 /********************************/
 nav{
-    
+    margin: 0;
+    padding: 0;
 }
 nav ul {
-    float: right;
+    float: left;
+    margin: 0;
+    padding: 0;
 }
 nav ul li {
-    float: right;
+    float: left;
+    
     list-style: none;
 /*    line-height: 100px;*/
-    margin-left: 15px;
-    text-align: right;
-    
+    margin-right: 15px;
+    text-align: left;
 }
-header nav ul li {
-    text-transform: uppercase;
+
+/********************************/
+/*----------Misc Stuff----------*/
+/********************************/
+#solidHorz {
+    height: 5px;
+    background: #1d2326;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 0;
 }
