@@ -23,7 +23,7 @@ Eric Selover
     <link href="grid.css" rel="stylesheet">
 </head>
 <body>
-
+    <? include 'header.php' ?>
 
 
 </body>

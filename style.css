@@ -25,7 +25,7 @@ canvas {
 /********************************/
 p, a, li, h1, h2, h3, h4, h5 {
     font-family: "helvetica", "arial", sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     color: #1d2326;
     font-style:normal;
     text-decoration: none;
@@ -40,24 +40,36 @@ a:hover {
     font-size: 44px;
     text-align: right;
     text-transform: uppercase;
+    font-weight: bold;
     
 }
 #title h2 {
     color: #6a6a61;
     font-size: 30px;
     text-align: right;
+    font-weight: bold;
     
 }
 header nav ul li a {
     color: #6a6a61;
-    font-size: 22px;
+    font-size: 24px;
     text-transform: uppercase;
     line-height: 100px;
+    font-weight: bold;
     
 }
 header nav ul li a:hover {
     text-decoration: underline;
-    color: #1d2326;
+    color: #611427;
+}
+article h1{
+    font-size: 24px;
+    color: #611427;
+    text-align: center;
+    margin-bottom: 26px;
+}
+article p {
+    color: #f5f5eb;
 }
 
 /********************************/
@@ -72,14 +84,20 @@ body{
 header{
     
 }
-#main{
-    height: 500px;
+#TextBox{
     background: #1d2326;
+    min-height: 70vh;
     margin-bottom: 0;
 }
 footer{
-    
+    box-sizing: border-box;
+    padding-bottom: 30px;
 }
+article {
+    box-sizing: border-box;
+    padding: 26px 16px 26px 16px;
+}
+
 
 /********************************/
 /*---------Nav Bar Stuff--------*/
@@ -112,3 +130,4 @@ nav ul li {
     margin-top: 0;
     padding: 0;
 }
+
