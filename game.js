@@ -35,9 +35,14 @@
     var img = new Image();
     
     var ptime = 0;
-    var numOfRooms = 25;
+    var numOfRooms = 30;
     var rooms = [];
+    var availableRooms = [];
+    var connectedRooms = [];
+    var paths = [];
     var tHelp = new TileHelper();
+    var gridWidth = Math.floor(canvas.width / 32);
+    var gridHeight = Math.floor(canvas.height / 32);
     
     /**
      * Cycle through different browsers to get correct animation frame function
@@ -55,13 +60,18 @@
     
     window.onload = (function() {
         for(var i = 0; i < numOfRooms; i++) {
-            var p = new Point(Math.floor(Math.random() * 1200), Math.floor(Math.random() * 680));
+            var p = new Point(Math.floor(Math.random() * 40), Math.floor(Math.random() * 25));            
+            var pixelPos = tHelp.gridToPixel(p);
             
-            var gridPos = tHelp.pixelToGrid(p);
-            var r = new Room(gridPos.x * tHelp.W, gridPos.y * tHelp.H, Math.floor(Math.random() * 96 + 32), Math.floor(Math.random() * 96 + 32));
-            console.log(r.x);
+            var numTilesW = Math.floor(Math.random() * 3 + 2);
+            var numTilesH = Math.floor(Math.random() * 3 + 2);
+
+            var r = new Room(pixelPos.x, pixelPos.y, numTilesW * 32, numTilesH * 32, i);
             rooms.push(r);
         }
+        
+        checkifoutside();
+        connectRooms();
     })();
     ////////////////////////////////////////////
     //----------------------------------------//
@@ -109,6 +119,8 @@
         }
     }
     
+    // Stores data for each tile: Width, Height
+    // Functions to conver pixel coordinates to grid coordinates,  vice versa
     function TileHelper() {
         this.W = 32;
         this.H = 32;
@@ -116,7 +128,7 @@
         this.halfH = this.H / 2;
         
         this.gridToPixel = function(p) {
-            return new Point(point.x * this.W, point.y * this.H);
+            return new Point(p.x * this.W, p.y * this.H);
         }
         
         this.pixelToGrid = function(p) {
@@ -124,6 +136,10 @@
         }
     }
     
+    // Tile class
+    // Stores the position
+    // function to draw each tile
+    // function to get center of tile for pathfinding
     function Tile(X, Y) {
         this.X = X;
         this.Y = Y;
@@ -145,6 +161,8 @@
         }
     }
     
+    //Point class
+    // Stores the position for each grid point
     function Point(x, y) {
         this.x = x;
         this.y = y;
@@ -174,8 +192,12 @@
         }
     }
     
-    
-    function Room(x, y, w, h) {
+    // Room class
+    //@param [types] float, float, float, float int
+    // Stores room data (i.e. Position, width, height, id number)
+    // draw function to draw each room to the canvas
+    function Room(x, y, w, h, id) {
+        this.id = id;
         this.width = w;
         this.height = h;
         this.x = x;
@@ -188,9 +210,98 @@
         this.draw = function(g) {
             g.fillStyle = "#000";            
             g.fillRect(this.x, this.y, this.width, this.height);
+            g.fillStyle = "#CCC";
+            g.fillText("" + this.id + "", this.x, this.y, this.width);
         }
     }   
     
+    
+    function connectRooms() {
+        
+        // add all the remaining room ids to a temporary array
+        for(var i = 0; i < rooms.length; i++) {
+            availableRooms.push(rooms[i].id);   
+        }
+        
+        //get a random room id from the available rooms array to start the connection
+        var roomStart = Math.floor(Math.random() * availableRooms.length);
+        connectedRooms.push(availableRooms[roomStart]);
+        
+        //Get a random room id for the next connecting room
+        var idNum = availableRooms[Math.floor(Math.random() * availableRooms.length)];
+        
+        // Check to see if the room is already connected and if it is get a new room
+        while(connectedRooms.length < rooms.length) {
+            while(checkIfIsAlreadyConnected(idNum)){
+                idNum = availableRooms[Math.floor(Math.random() * availableRooms.length)];
+            }
+        }
+        
+        
+        createPaths();
+    }
+    
+    function createPaths() {
+        var startPoint = new Point(0, 0);
+        var endPoint = new Point(0, 0);
+        var pathPoints = [];
+        for(var i = 0; i < connectedRooms.length; i++) {
+            for(var j = 0; j < rooms.length; j++) {
+                if(connectedRooms[i] === rooms[j].id) {
+                    var tempX = Math.floor(Math.random() * rooms[j].maxX + rooms[j].x);
+                    if(tempX > rooms[j].maxX) tempX = rooms[j].maxX;
+                    var tempY = Math.floor(Math.random() * rooms[j].maxY + rooms[j].y);
+                    if(tempY > rooms[j].maxY) tempY = rooms[j].maxY;
+                    
+                    startPoint.x = tempX;
+                    startPoint.y = tempY;
+                    
+                    startPoint = tHelp.pixelToGrid(startPoint);
+                    
+                    var tileS = new Tile(startPoint.x, startPoint.y);
+                    paths.push(tileS);
+                    
+                    console.log("StartPoint: " + startPoint.x + ", " + startPoint.y);
+                }
+            }
+            
+            for(var k = 0; k < rooms.length; k++) {
+                if((i + 1) <= connectedRooms.length) {
+                    if(connectedRooms[i + 1] === rooms[k].id) {
+                        var endTempX = Math.floor(Math.random() * rooms[k].maxX + rooms[k].x);
+                        if(endTempX > rooms[k].maxX) endTempX = rooms[k].maxX;
+                        var endTempY = Math.floor(Math.random() * rooms[k].maxY + rooms[k].y);
+                        if(endTempY > rooms[k].maxY) endTempY = rooms[k].maxY;
+                        
+                        endPoint.x = endTempX;
+                        endPoint.y = endTempY;
+                        
+                        endPoint = tHelp.pixelToGrid(endPoint);
+                        
+                        var tileE = new Tile(endPoint.x, endPoint.y);
+                        paths.push(tileE);
+                        
+                        console.log("EndPoint: "  + endPoint.x + ", " + endPoint.y);
+                    }
+                }
+            }
+        }
+    }
+    
+    // @param  [type]   int      [description]  Room id
+    // Checks the room id to see if it is already connected by looping through the connected rooms array
+    // @return [type]   Boolean
+    function checkIfIsAlreadyConnected(num) {
+        for(var i = 0; i < connectedRooms.length; i++) {
+            if(num == connectedRooms[i]) {
+                return true;   
+            }
+        }
+        
+        connectedRooms.push(num);
+        
+        return false;
+    }
     
     ////////////////////////////////////////////
     //----------------------------------------//
@@ -198,6 +309,17 @@
     //----------------------------------------//
     ////////////////////////////////////////////
     
+    /// Checks the rooms array to see if any of the rooms extend past the canvas' width / height and removes them from the array
+    function checkifoutside() {
+        for(var i = rooms.length - 1; i >= 0; i--) {
+            if((rooms[i].x + rooms[i].width) > canvas.width) {
+                rooms.splice(i, 1);
+            }
+            if((rooms[i].y + rooms[i].height) > canvas.height) {
+                rooms.splice(i, 1);
+            }
+        }
+    }
     
     gameLoop();
     
@@ -210,7 +332,7 @@
         ptime = time;
         if(isNaN(time)) time = 0;
         
-        update();
+        update(dt);
         
         draw();
         requestAnimFrame(gameLoop);
@@ -220,7 +342,7 @@
     /**
      * Update every frame
      */
-    function update(){
+    function update(dt){
     }
     
     /**
@@ -231,6 +353,10 @@
          graphics.clearRect(0,0,canvas.width,canvas.height);
         for(var i = rooms.length - 1; i >= 0; i--) {
             rooms[i].draw(graphics);   
+        }
+        
+        for(var j = paths.length - 1; j >= 0; j--) {
+            paths[j].draw(graphics);
         }
     }
     
