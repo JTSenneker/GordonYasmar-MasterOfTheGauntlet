@@ -15,38 +15,44 @@ Eric Selover
 /-->
 <!doctype html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Gordon Yasmar</title>
     <link href="style.css" rel="stylesheet">
     <link href="grid.css" rel="stylesheet">
 </head>
-<body>
-    
-    <? include 'header.php' ?>
-    
-     <div class="col1"></div>
-    
-      <div class="col5">
-    
-     </div>
-    <div class="col1"></div>
-    
-     <article class="col4" id="TextBox">
-            <h1>Header</h1>
-         <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet nibh at nisl porttitor finibus. Fusce ac volutpat neque. Aliquam dignissim, diam vitae blandit tristique, arcu ante fermentum justo, nec molestie magna purus ut orci. Ut malesuada, nibh a porttitor egestas, leo est vehicula orci, sed rutrum ex dolor eu quam. Cras auctor aliquam auctor. Pellentesque facilisis faucibus nunc vel tempus. Nulla sollicitudin viverra dolor. Mauris ultrices fermentum odio, ac facilisis nibh aliquet vitae. Quisque ultrices ultricies consectetur. Fusce vitae placerat lacus. Vivamus nec urna quis tellus aliquet malesuada. Sed eleifend scelerisque tempus. Praesent vel mauris est.
-            </p>
-    
-   </article>
-    
-       <div class="col12" id="solidHorz"></div>
-    <footer class="col12">
-        
-    
-    </footer>
 
+<body>
+
+    <? include 'header.php' ?>
+        
+            
+            
+            <div class="col1"></div>
+
+            <div class="col5 fillV" >
+                <div id="video">
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/jd2mIIIe91g" frameborder="0" allowfullscreen></iframe>
+                    </div>
+            </div>
+
+            <div class="col1"></div>
+
+            <article class="col4 fillV" id="TextBox">
+                <h1>What is <em>Master of the Gauntlet</em>?</h1>
+                <p>Master of the Gauntlet is a JRPG in which our hero, Gordon Yasmar, is thrown into a gauntlet to fight for other people’s amusement. He must survive numerous enemies and challenge the master of the gauntlet, and end these gladiator-like trials.
+                </p>
+                
+                
+                <a href="play.php"><h2>Click to Play</h2></a>
+                <img src="img/YasmarNESColors.png">
+
+            </article>
+
+            <? include("footer.php") ?>
 
 
 </body>
+
 </html>

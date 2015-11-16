@@ -32,10 +32,10 @@ Eric Selover
     <? include 'header.php' ?>
 
     <canvas width="1280" height="720" id="canvas"> </canvas>
+    
+    <? include("footer.php") ?>
 
-    <script src="game.js">
-      
-    </script>
+    <script src="game.js"></script>
     
 </body>
 </html>
