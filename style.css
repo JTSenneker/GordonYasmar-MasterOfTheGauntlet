@@ -64,16 +64,27 @@ header nav ul li a:hover {
 }
 article h1{
     font-size: 24px;
-    color: #611427;
+    color: #ad2e4d;
     text-align: center;
-    margin-bottom: 26px;
+    margin: 20px;
+    margin-bottom: 10px;
 }
 article p {
     color: #f5f5eb;
 }
+article a h2 {
+    font-size: 18px;
+    color: #ad2e4d;
+    text-align: center;
+    margin: 16px;
+    margin-bottom: 10px;
+}
+article a h2:hover {
+    color: #6a6a61;
+}
 
 /********************************/
-/*--------Main Body Stuff-------*/
+/*-----------Main Stuff---------*/
 /********************************/
 html{
     
@@ -82,22 +93,65 @@ body{
     background: #dddcc5;
 }
 header{
-    
+    height: 120px;
 }
 #TextBox{
     background: #1d2326;
-    min-height: 70vh;
+    
     margin-bottom: 0;
 }
-footer{
+#video{
+    height: 60%;
+    margin-top: 100px;
+    margin-bottom: 100px;
+    background: #1d2326;
     box-sizing: border-box;
-    padding-bottom: 30px;
+    padding: 16px;
 }
 article {
-    box-sizing: border-box;
+    position: relative;
     padding: 26px 16px 26px 16px;
+    overflow: visible;
+}
+article p {
+    text-indent: 25px;
+}
+article img {
+    width: 100%;
+    display: block;
+}
+#main{
+    min-height:100px;
+}
+#main:after {
+    visibility: hidden;
+    display: block;
+    height: 0px;
+    clear: both;
+}
+div.fillV1, article.fillV1{
+    box-sizing: border-box;
+    min-height: 100%;
+    margin-bottom: 0;
+    display: block;
+}
+div.fillV, article.fillV{
+    height:auto;
+    box-sizing: border-box;
+    margin-bottom: 0;
 }
 
+
+/********************************/
+/*---------Footer Stuff---------*/
+/********************************/
+footer p{
+    box-sizing: border-box;
+    padding-bottom: 30px;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #6a6a61;
+}
 
 /********************************/
 /*---------Nav Bar Stuff--------*/
@@ -123,6 +177,9 @@ nav ul li {
 /********************************/
 /*----------Misc Stuff----------*/
 /********************************/
+.clear {
+    clear: both;
+}
 #solidHorz {
     height: 5px;
     background: #1d2326;
@@ -130,4 +187,18 @@ nav ul li {
     margin-top: 0;
     padding: 0;
 }
+#solidHorzArticle {
+    height: 2px;
+    background: #ad2e4d;
+    margin-bottom: 10px;
+    margin-top: 10px;;
+    padding: 0;
+}
+canvas {
+    margin-left: 1%;
+    padding: 0;
+    margin-bottom: 0;
+    box-sizing: border-box;
+}
+
 

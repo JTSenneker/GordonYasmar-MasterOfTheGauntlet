@@ -24,6 +24,8 @@ Eric Selover
 </head>
 <body>
     <? include 'header.php' ?>
+    
+    <? include("footer.php") ?>
 
 
 </body>
