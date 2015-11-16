@@ -12,16 +12,6 @@ Jonathan Champion
 
 
 
-
-
-/**
- * ON PAGE LOAD
- */
-$(function(){
-   setColumnHeights(); 
-    
-});
-
 /**
  * ON PAGE (window) LOAD (fixes refresh bug)
  */
@@ -29,6 +19,9 @@ $(window).load(function(){
     setColumnHeights();
     
 });
+
+
+
 
 
 
