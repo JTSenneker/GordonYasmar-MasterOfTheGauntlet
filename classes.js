@@ -78,8 +78,10 @@ function PC (url) {
     obj.dex = 1;
     obj.eva = 1;
     obj.spd = 1;
+    obj.status = "NORMAL";
     
     //internal timer for battle turn
+    var maxATB = ((60 - obj.spd) * 160);
     obj.ATBTimer = 0;
     
     /*
@@ -92,14 +94,40 @@ function PC (url) {
                       haste:0,
                      };
     
+    obj.attacks = {
+        //List attacks 
+        slash: [50, 60]
+    };
+    
     /*
     *update function requires gameloop's delta time
     *updates attack timer for the hero
     */
-    obj.update = function (dt) {
-        obj.ATBTimer -= dt;
+    obj.update = function (dt) {        
         
-        if(obj.ATBTimer <= 0){
+        /*
+            Full ATB = ((60 - Speed) * 160)
+            
+            fill rate = 
+            
+            Slow: +6 per frame
+            Normal: +10 per frame
+            Haste: +15 per frame
+        */
+        
+        switch(obj.status) {
+            case "NORMAL":
+                obj.ATBTimer += 10 * dt;
+                break;
+            case "SLOWED":
+                obj.ATBTimer += 6 * dt;
+                break;
+            case "HASTE":
+                obj.ATBTimer += 15 * dt;
+                break;
+        }
+        
+        if(obj.ATBTimer >= maxATB){
             obj.attack();
         }
     }
@@ -110,11 +138,43 @@ function PC (url) {
     *then select a target
     */
     obj.attack = function () {
-        //Pause timers to allow for selections?
         
-        //select skill
+        //Open Selection Screen
+        //min and max will be returned from user selection 
         
-        //target opponent
+        /// this is a temporary selection
+        var selected = {
+            min: obj.attacks.slash[1],
+            max: obj.attacks.slash[2]
+        };
+        
+        //Attack selected: Get Damage output
+        var base = Math.floor(Math.random() * (selected.max - selected.min + 1) + selected.min);
+        
+        //Pick Opponent
+        
+        //Get Damage using formula | take it off the health of the enemy
+        var damage = ((2 * obj.level + 10) / 100 * (obj.str / npc.def) * base + 2);
+        npc.hp = npc.hp - damage;
+        
+        if(npc.hp <= 0) {
+            //Destroy npc
+            //Item drop?
+            //Give experience
+        }
+        
+        /*
+            Formula:
+            
+            ((2 * Level + 10) / 100 * (STR / DEF) * Base + 2)
+            Level: Attackers Level
+            STR: Attackers STR stat
+            DEF: Targets DEF stat
+            Base: Base attack of weapon skill
+        */
+        
+        
+        
         
         //reset atbTimer
         obj.ATBTimer = 0;
@@ -122,7 +182,6 @@ function PC (url) {
     
     return obj;
 }
-
 function NPC (){
     
     //data
@@ -146,8 +205,10 @@ function NPC (){
     this.dex = 1;
     this.eva = 1;
     this.spd = 1;
+    this.status = "NORMAL";
     
     //ATB timer
+    this.maxATBNumber = 0;
     this.ATBTimer = 0;
     
     //Do we want to calculate XP value here?
@@ -155,21 +216,39 @@ function NPC (){
     
     
     //skill system?  Dont know what stuff the NPC's will have
-    obj.hasLearned = {fire:0,
+    this.hasLearned = {fire:0,
                       blizzard:0,
                       thunder:0,
                       haste:0,
-                     }
+                     };
+    
+    this.attacks = {
+        // list attacks  
+        charge: [50, 60]
+    };
+    
+    var npc = this;
+    npc.maxATBNumber = ((60 - npc.spd) * 160);
     
     /*
     *Update function
     *takes gameloops delta time
     */
-    obj.update = function (dt) {
-        obj.ATBTimer -= dt;
+    this.update = function (dt) {
+        switch(npc.status) {
+            case "NORMAL":
+                npc.ATBTimer += 10 * dt;
+                break;
+            case "SLOWED":
+                npc.ATBTimer += 6 * dt;
+                break;
+            case "HASTE":
+                npc.ATBTimer += 15 * dt;
+                break;
+        }
         
-        if(obj.ATBTimer <= 0){
-            obj.attack();
+        if(npc.ATBTimer >= npc.maxATBNumber){
+            npc.attack();
         }
     }
     
@@ -179,16 +258,35 @@ function NPC (){
     *AI then selects a target (AI might need custom priorities to target lowest HP or %HP etc)
     *reset timer to it's delay
     */
-    obj.attack = function () {
-        //select skill
+    this.attack = function () {
+        //Get random attack
+        //Formula for getting attack?
+        //set the min and max to the selected attack
         
-        //target opponent
+        //this is temporary 
+        var randomAttack = {
+            min: npc.attacks.charge[1],
+            max: npc.attacks.charge[2]
+        };
+        
+        //Get weapon stats        
+        var wbase = Math.floor(Math.random() * (randomAttack.max - randomAttack.min + 1) + randomAttack.min);
+        
+        //Get damage
+        var npcDamage = ((2 * npc.level + 10) / 100 * (npc.str / obj.def) * wbase + 2);
+        obj.hp = obj.hp - npcDamage;
+        
+        
+        
+        if(obj.hp <= 0) {
+            //Trigger Game Over   
+        }
         
         //reset atbTimer
-        obj.ATBTimer = 0;
+        npc.ATBTimer = 0;
     }
     
-    return obj;
+    return npc;
 }
 
 /*
