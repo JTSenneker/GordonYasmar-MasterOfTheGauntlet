@@ -10,16 +10,57 @@ function GetRandom(min,max){
 function Tile(posX,posY,value){
     this.x = posX*32;
     this.y = posY*32;
+    this.value = value
     this.img = new Image();
     this.img.src = "imgs/TileSheet.png";
     this.me = this;
     this.Draw = function(graphics){
-        if(value==1)graphics.drawImage(this.img,this.x,this.y);
+        if(this.value==1)graphics.drawImage(this.img,this.x,this.y);
         else{
             graphics.fillStyle = "#333";
             graphics.fillRect(this.x,this.y,32,32);
         }
         
+    }
+    
+    /////////////////////////////////////////////
+    //=========================================//
+    //============PATHFINDING STUFF============//
+    //=========================================//
+    /////////////////////////////////////////////
+    
+    //pathfinding properties
+    this.neighbors = [];
+    this.parent;
+    this.G;//cost to move to this node from path start
+    this.F;//estimated total cost of this node
+    
+    this.resetParent = function(){
+        me.parent = null;
+        me.G=0;
+        me.F=0;
+    }
+    this.setParentTile = function(tile){
+        me.parent=tile;
+        me.G=parent.G+me.getCost();
+    }
+    this.getCost=function(){
+        if(me.value==1) return 1;
+        return 1000;
+    }
+    this.doHeuristic = function(endTile){
+        var H=0;
+        H=distanceEuclidean(endTile);
+    }
+    this.distanceEuclidean=function(endTile){
+        var dx = endTile.x-me.x;
+        var dy = endTile.y-me.y;
+        return Math.sqrt(dx*dx + dy+dy);
+    }
+    this.addNeighbors = function(tileArray){
+        for(var t = 0; t<tileArray.length;t++){
+            if(tileArray[i]!=null)me.neighbors.push(tileArray[i]);   
+        }
     }
 }
 
@@ -160,3 +201,29 @@ var Dungeon = {
 
 Dungeon.Generate();
 Dungeon.Draw(graphics);
+
+///////////////////////////////////////////////
+//===========================================//
+//=============PATHFINDING STUFF=============//
+//===========================================//
+///////////////////////////////////////////////
+function Pathfinder(){
+    this.openTiles = [];
+    this.closedTiles = [];
+    
+    this.me = this;
+    //===========FIND PATH FUNCTION==========//
+    //Finds the path for the player to follow
+    this.findPath = function(startTile, endTile){
+        me.openTiles = [];
+        me.closedTiles = [];
+        
+        //TODO:Starting tiles parent property shuld be null
+        
+        //STEP 1: CONNECT START TO END
+        
+        //STEP 2: BUILD PATH BACK TO BEGINNING
+        
+        //STEP 3: REVERSE THE PATH(FOR CONVENIENCE)
+    }
+}
