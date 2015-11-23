@@ -218,12 +218,59 @@ function Pathfinder(){
         me.openTiles = [];
         me.closedTiles = [];
         
-        //TODO:Starting tiles parent property shuld be null
-        
+        //Starting tiles parent property shuld be null
+        startTile.resetParent();
         //STEP 1: CONNECT START TO END
-        
+        me.connectStartToEnd(startTile,endTile);
         //STEP 2: BUILD PATH BACK TO BEGINNING
         
         //STEP 3: REVERSE THE PATH(FOR CONVENIENCE)
     }
+    
+    //function that calculates the cost of moving from one tile to the next and connects a starting tile to an ending tile
+    this.connectStartToEnd=function(startTile,endTile){
+        me.openTiles.push(startTile);//add startTile to the open tiles array
+        
+        //WHILE THERE ARE STILL TILES IN THE OPEN TILES ARRAY
+        while(me.openTiles.length >0){
+            //FIND THE OPEN TILE WITH THE LOWEST F VALUE
+            var F = 99999999999;
+            var index = -1;
+            for(var i = 0; i < me.openTiles.length;i++){
+             if(me.openTiles[i].F < F){
+                 F=me.openTiles[i].F;
+                 index=i;
+             }
+            }
+            var current = openTiles.slice(index);//REMOVE TILE FROM OPEN TILES ARRAY
+            me.closedTiles.push(current);
+            
+            //IF WE'VE CONNECTED THE START TO THE END , BREAK OUT OF WHILE, RETURN OUT OF FUNCTION
+            if(current == endTile)break;
+            
+            for(var i = 0; i < current.neighbors.length;i++){
+                var neighbor = current.neighbors[i];
+                if(!me.tileInArray(me.closedTiles,neighbor)){
+                    if(!me.tileInArray(me.openTiles,neighbor)){
+                        me.openTiles.push(neighbor);
+                        neighbor.setParentTile(current);
+                        neighbor.doHeuristic(endTile);
+                    }
+                }else{
+                    if(neighbor.G>current.G+neighbor.getCost()){
+                        neighbor.setParentTile(current);
+                        neighbor.doHeuristic(endTile);
+                    }
+                }
+            }
+        }
+    }
+    
+    //function that checks to see if a tile is in an array
+    this.tileInArray = function(array,tile){
+        for(var i =0; i < array.length;i++) if(array[i]==tile)return true;
+        return false;
+        
+    }
+    
 }
