@@ -1,3 +1,4 @@
+<!doctype html>
 <!--
 /*******************************************/
 /*---------GORDON YASMAR LINKS PAGE--------*/
@@ -14,7 +15,7 @@ Eric Selover
 
 /-->
 
-<!doctype html>
+
 <html>
 <head>
     <meta charset="UTF-8">
