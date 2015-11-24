@@ -1,4 +1,4 @@
-var game = new Phaser.Game(2048,2048,Phaser.AUTO,'');
+var game = new Phaser.Game(800,600,Phaser.AUTO,'');
 
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
@@ -12,12 +12,14 @@ var overworld = function(){
         player = new PlayerOW();
     };
     this.create=function(){
+       
         Dungeon.Generate();
         Dungeon.Draw();
         player.draw();
     };
     this.update=function(){
-        
+        player.x+=1;
+        player.sprite.position.x +=1;
     };
     this.render=function(){};
 };
@@ -36,11 +38,15 @@ var battle = function(){
 };
 
 var title = function(){
+    var logo;
     this.preload=function(){
+        game.load.image("logo","imgs/GordonYasmarLogo.png");
         
     };
     this.create=function(){
-        
+        game.stage.backgroundColor = "#eeeeee";
+        logo = game.add.sprite(0,0,'logo');
+        logo.scale.setTo(.5,.5);
     };
     this.update=function(){
         
@@ -60,7 +66,8 @@ var gameover = function(){
     this.render=function(){};
 };
 game.state.add("overworld", overworld);
-game.state.start("overworld");
+game.state.add("title", title);
+game.state.start("title");
 
 ///////////////Tile Object///////////////////
 function Tile(posX,posY,value){
@@ -254,7 +261,8 @@ var Dungeon = {
 var PlayerOW = function(){
     this.x=32;
     this.y=32;
+    this.sprite;
     this.draw=function(){
-        game.add.sprite(this.x,this.y,'gordon');
+        this.sprite = game.add.sprite(this.x,this.y,'gordon');
     }
 }
