@@ -211,7 +211,7 @@ function Pathfinder(){
     this.openTiles = [];
     this.closedTiles = [];
     
-    this.me = this;
+    var me = this;
     //===========FIND PATH FUNCTION==========//
     //Finds the path for the player to follow
     this.findPath = function(startTile, endTile){
@@ -223,8 +223,9 @@ function Pathfinder(){
         //STEP 1: CONNECT START TO END
         me.connectStartToEnd(startTile,endTile);
         //STEP 2: BUILD PATH BACK TO BEGINNING
-        
+        var path = me.connectEndToStart(startTile,endTile);
         //STEP 3: REVERSE THE PATH(FOR CONVENIENCE)
+        path.reverse();
     }
     
     //function that calculates the cost of moving from one tile to the next and connects a starting tile to an ending tile
@@ -264,8 +265,18 @@ function Pathfinder(){
                 }
             }
         }
-    }
+    }//end start to end method
     
+    //get each tile's parent starting at the end
+    this.connectEndToStart = function(startTile, endTile){
+        var path = [];
+        var pathNode=endTile;
+        while(pathNode!=null){
+            path.push(pathNode);
+            pathNode = pathNode.parent;
+        }
+        return path;
+    }
     //function that checks to see if a tile is in an array
     this.tileInArray = function(array,tile){
         for(var i =0; i < array.length;i++) if(array[i]==tile)return true;
