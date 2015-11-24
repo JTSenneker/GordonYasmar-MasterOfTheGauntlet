@@ -1,4 +1,4 @@
-var game = new Phaser.Game(2048,2048,Phaser.AUTO,'');
+var game = new Phaser.Game(800,600,Phaser.AUTO,'');
 
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
@@ -14,12 +14,22 @@ var overworld = function(){
     this.create=function(){
         Dungeon.Generate();
         Dungeon.Draw();
+        player.getStartLocation();
         player.draw();
-    };
-    this.update=function(){
+        game.world.setBounds(0,0,2048,2048);
+        game.camera.target=player.sprite;
+        
+        cursors = game.input.keyboard.createCursorKeys();
         
     };
-    this.render=function(){};
+    this.update=function(){
+        player.update();
+        console.log(player.sprite.position);
+        
+    };
+    this.render=function(){
+    game.debug.cameraInfo(game.camera,32,32);
+    };
 };
 
 var battle = function(){
@@ -36,11 +46,17 @@ var battle = function(){
 };
 
 var title = function(){
+    var logo;
+    var yasmar;
     this.preload=function(){
-        
+        game.load.image("Logo","imgs/GordonYasmarLogo.png");
+        game.load.image("Yasmar","imgs/YasmarNESColors.png");
     };
     this.create=function(){
-        
+        game.stage.backgroundColor = "#eeeeee";
+        logo = game.add.sprite(0,0,"Logo");
+        yasmar = game.add.sprite(800,0,"Yasmar");
+        logo.scale.setTo(.75,.75);
     };
     this.update=function(){
         
@@ -240,7 +256,16 @@ var Dungeon = {
         }
         return closest;
     },
-
+    
+    //////////////////////////////////////
+    //////////GET TILE FUNCTION///////////
+    //////////////////////////////////////
+    GetTile:function(point){
+        if(point.x < 0 || point.y < 0) return null;
+        if(point.x > Dungeon.map[0].length || point.y > Dungeon.map.length) return null;
+        return Dungeon.map[point.x][point.y];
+    },
+    
     Draw:function(graphics){
         for(var x=0;x<this.mapSize-1;x++){
                 for(var y=0;y<this.mapSize-1;y++){
@@ -251,10 +276,63 @@ var Dungeon = {
 }
 
 ///////////////Overworld Player////////////
-var PlayerOW = function(){
+function PlayerOW(){
+    this.getStartLocation = function(){
+        var playerSet = false;
+        while(!playerSet){
+            if(Dungeon.map != null){
+                var p = new Point(GetRandom(1,Dungeon.mapSize-1),GetRandom(1,Dungeon.mapSize-1));
+                var startingTile = Dungeon.GetTile(p);
+                if(startingTile.value == 1){
+                    this.x=startingTile.x;
+                    this.y=startingTile.y;
+                    playerSet=true;
+                }
+            }
+        }
+    },
     this.x=32;
     this.y=32;
+    this.sprite;
     this.draw=function(){
-        game.add.sprite(this.x,this.y,'gordon');
+       this.sprite = game.add.sprite(this.x,this.y,'gordon');
+    }
+    this.update=function(){
+        this.sprite.position.x=this.x;
+        this.sprite.position.y=this.y;
+        
+        if(cursors.up.isDown)this.y-=4;
+        if(cursors.down.isDown)this.y+=4;
+        if(cursors.right.isDown)this.x+=4;
+        if(cursors.left.isDown)this.x-=4;
+    };
+}
+
+/////////////POINT OBJECT////////////////
+function Point(pointX,pointY){
+    this.x=pointX;
+    this.y=pointY;
+    
+    this.getUp=function(){
+        return new Point(this.x,this.y-1);
+    };
+    this.getDown=function(){
+        return new Point(this.x,this.y+1);
+    };
+    this.getLeft=function(){
+        return new Point(this.x-1,this.y);
+    };
+    this.getRight=function(){
+        return new Point(this.x+1,this.y);
+    };
+}
+
+////////////TILE HELPER OBJECT//////////
+var TileHelper = {
+    pixelToGrid:function(x,y){
+        return new Point(~~(x/32),~~(y/32));
+    },
+    gridToPixel:function(point){
+        return {x:point.x*32,y:point.y*32};
     }
 }
