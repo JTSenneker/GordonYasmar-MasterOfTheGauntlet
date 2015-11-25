@@ -16,9 +16,11 @@ var overworld = function(){
         Dungeon.Draw();
         player.getStartLocation();
         player.draw();
-        game.world.setBounds(0,0,2048,2048);
-        game.camera.target=player.sprite;
         
+        game.camera.target=player.sprite;
+        game.camera.scale.setTo(2,2);
+        game.world.setBounds(0,0,Dungeon.mapSize*32*game.camera.scale.x,Dungeon.mapSize*32*game.camera.scale.y);
+        player.sprite.smoothed = false;
         cursors = game.input.keyboard.createCursorKeys();
         
     };
@@ -83,9 +85,13 @@ function Tile(posX,posY,value){
     this.x = posX*32;
     this.y = posY*32;
     this.value = value;
+    this.sprite;
     this.me = this;
     this.Draw = function(graphics){
-        if(this.value==1)game.add.sprite(this.x,this.y,'floorTile');
+        if(this.value==1){
+            this.sprite = game.add.sprite(this.x,this.y,'floorTile');
+            this.sprite.smoothed=false;
+        }
         else return
         
     }
