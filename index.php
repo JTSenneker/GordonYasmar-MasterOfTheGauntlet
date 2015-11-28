@@ -1,3 +1,4 @@
+<!doctype html>
 <!--
 /*******************************************/
 /*----------GORDON YASMAR HOMEPAGE---------*/
@@ -13,7 +14,7 @@ Eric Selover
 
 
 /-->
-<!doctype html>
+
 <html>
 
 <head>
