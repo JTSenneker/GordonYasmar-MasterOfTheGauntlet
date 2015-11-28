@@ -20,7 +20,9 @@ $(window).load(function(){
     
 });
 
-
+$( window ).resize(function() {
+    setColumnHeights();
+});
 
 
 
@@ -30,12 +32,18 @@ $(window).load(function(){
  */
 function setColumnHeights(){
     var maxHeight = 0;
-    //go through heights of all .fillV
-    $('.fillV').each(function(){
-        //set maxHeight if new value is larger
-        maxHeight = $(this).height() > maxHeight ? $(this).height() : maxHeight;
-    });
+    if($(window).width() >= 833){
+        
+        //go through heights of all .fillV
+        $('.fillV').each(function(){
+            //set maxHeight if new value is larger
+            maxHeight = $(this).height() > maxHeight ? $(this).height() : maxHeight;
+        });
+    } else {
+        maxHeight = "auto";
+    }
     //set all fillV heights to new max    
     $("div.fillV").height(maxHeight);
     $("article.fillV").height(maxHeight);
+        
 }

@@ -201,4 +201,57 @@ canvas {
     box-sizing: border-box;
 }
 
-
+/********************************/
+/*---------Media Queries--------*/
+/********************************/
+@media screen and (max-width: 850px){
+    header nav.col5 {
+        width: 98%;
+    }
+    article.col3, article.col4, article.col5, article.col6, div.col3, div.col4, div.col5, div.col6  {
+        width: 98%;
+        
+    }
+    #video {
+        margin: 0;
+        height: 600px;
+    }
+    #solidHorz {
+        margin-top: 5px;
+    }
+    #title {
+        width: 98%;
+    }
+    #title h1 {
+        text-align: center;
+    }
+    #title h2 {
+        text-align: center;
+        
+    }
+    header nav {
+        width:100%;
+        margin: 0;
+        padding: 0;
+    }
+    header nav ul {
+        margin: 0;
+        padding: 0;
+        padding-left: 25px;
+        float: left;
+        width: 100%;
+    }
+    header nav ul li {
+        padding-top: 0;
+        float: left;
+        padding-left: 0;
+        text-align: center;
+        width: 20%;
+        margin-left: 0;
+        line-height: 50px;
+        
+    }
+    header nav ul li a {
+        line-height: 50px;
+    }
+}
