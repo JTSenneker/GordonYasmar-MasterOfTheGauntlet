@@ -6,6 +6,7 @@ var pathFinder;
 var level;
 var layer;
 var marker;
+var gordonBattle = new PCBattle();
 
 
 
@@ -41,14 +42,11 @@ var overworld = function(){
         pathFinder = game.plugins.add(Phaser.Plugin.PathFinderPlugin);
         pathFinder.setGrid(Dungeon.map,walkables);
         console.log(level.layers[0].data);
-        marker = game.add.graphics();
-        marker.lineStyle(2,0x000000,1);
-        marker.drawRect(0,0,32,32);
         
         
         
         game.physics.enable(player.sprite,Phaser.Physics.ARCADE);
-        player.sprite.body.setSize(32,32,2,1);
+        player.sprite.body.setSize(25,25,0,0);
         player.sprite.collideWorldBounds=true;
         game.camera.follow(player.sprite);
         game.camera.scale.setTo(1,1);
@@ -62,13 +60,6 @@ var overworld = function(){
         game.physics.arcade.collide(player.sprite,layer);
 
         player.update();
-        marker.x = layer.getTileX(game.input.activePointer.worldX)*32;
-        marker.y = layer.getTileY(game.input.activePointer.worldY)*32;
-        if(game.input.mousePointer.isDown){
-            console.log(level.getTile(layer.getTileX(marker.x),layer.getTileY(marker.y)));
-            player.gridTargetX=layer.getTileX(marker.x)*32;
-            player.gridTargetY=layer.getTileY(marker.y)*32;
-        }
         
 
     };
@@ -76,14 +67,35 @@ var overworld = function(){
 };
 
 var battle = function(){
+    var healthFrame;
+    var manaFrame;
+    var ATBFrame;
+    var healthBar;
+    var healthCrop;
+    var timer;
+    var enemy;
     this.preload=function(){
-        
+        game.load.image("heinz","imgs/Heinz.png");
+        game.load.image("hpFrame","imgs/BattleSystem/GUI/HealthBarFrame.png");
+        game.load.image("manaFrame","imgs/BattleSystem/GUI/ManaBarFrame.png");
+        game.load.image("ATBFrame","imgs/BattleSystem/GUI/ATBFrame.png");
+        game.load.image("HealthBar","imgs/BattleSystem/GUI/HealthBar.png");
     };
     this.create=function(){
-        
+        healthBar=game.add.sprite(10,477,'HealthBar');
+        enemy = new Heinz();
+        healthCrop=new Phaser.Rectangle(0,0,0,healthBar.height);
+        manaFrame=game.add.sprite(0,492,'manaFrame');
+        healthFrame=game.add.sprite(0,454,'hpFrame');
+        ATBFrame=game.add.sprite(0,526,'ATBFrame');
+        game.stage.backgroundColor = "#eeeeee";
     };
     this.update=function(){
-        
+        healthBar.crop(healthCrop);
+        gordonBattle.update();
+        healthCrop.width = (gordonBattle.hp/gordonBattle.maxHP)*188;
+        enemy.obj.update();
+        console.log(enemy.obj.ATBTimer);
     };
     this.render=function(){};
 };
@@ -121,7 +133,8 @@ var gameover = function(){
 };
 game.state.add("overworld", overworld);
 game.state.add("title", title);
-game.state.start("title");
+game.state.add("battle",battle);
+game.state.start("battle");
 
 ////////////////Dungeon Object//////////////
 var Dungeon = {
@@ -327,3 +340,175 @@ var TileHelper = {
         return {x:point.x*32,y:point.y*32};
     }
 };
+
+function PCBattle () {
+    
+    
+    
+    //data
+    this.name = "Gordon";
+    this.state={
+        slow:0,
+        haste:1000,
+    };
+    //PC level
+    this.level = 1;
+    
+    //PC hp and mp - need a formula to derive these from core stats
+    this.hp = 100;
+    this.maxHP=100;
+    this.mp = 100;
+    
+    //core stats ( can use array structure if preferred)
+    //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
+    this.vit = 1;
+    this.mag = 1;        
+    this.str = 1;
+    this.def = 1;
+    this.int = 1;
+    this.dex = 1;
+    this.eva = 1;
+    this.spd = 1;
+    this.maxATB=((60-this.spd)*160);
+    
+    //internal timer for battle turn
+    this.ATBTimer = 0;
+    
+    /*
+    *These can serve as a 1/0 boolean, or allow for increasing incrimentation
+    *if desired (i.e. "fire 2" etc)
+    */
+    this.hasLearned = {fire:0,
+                      blizzard:0,
+                      thunder:0,
+                      haste:0,
+                     };
+    
+    /*
+    *update function requires gameloop's delta time
+    *updates attack timer for the hero
+    */
+    this.update = function () {
+        if(this.state.slow > 0){
+            this.ATBTimer +=6;
+            this.state.slow--;
+            
+        }
+        else if(this.state.haste > 0){
+            this.ATBTimer +=15;
+            this.state.haste--;
+        }
+        else this.ATBTimer += 10;
+        
+        if(this.ATBTimer >= this.maxATB){
+            this.attack();
+        }
+    }
+    
+    /*
+    *Attack function
+    *When triggered, this allows player to select attack
+    *then select a target
+    */
+    this.attack = function () {
+        //Pause timers to allow for selections?
+        
+        //select skill
+        
+        //target opponent
+        
+        //reset atbTimer
+        this.ATBTimer = 0;
+    }
+    
+}
+function NPC (){
+    
+    //data
+    this.name = "";
+    this.description = "";
+    this.state = {
+        slow:0,
+        haste:0,
+    }
+    //Level is a function of how deep into the gauntlet you are
+    this.level = 1;
+    
+    //hp and mp - factors of stats?
+    this.hp = 0;
+    this.mp = 0;
+    
+    //core stats (can use array structure if preferred)
+    //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
+    this.vit = 1;
+    this.mag = 1;        
+    this.str = 1;
+    this.def = 1;
+    this.int = 1;
+    this.dex = 1;
+    this.eva = 1;
+    this.spd = 1;
+    this.maxATB=((60-this.spd)*160);
+    //ATB timer
+    this.ATBTimer = 0;
+    
+    //Do we want to calculate XP value here?
+    this.xpGiven = 10;
+    
+    
+    //skill system?  Dont know what stuff the NPC's will have
+    this.hasLearned = {fire:0,
+                      blizzard:0,
+                      thunder:0,
+                      haste:0,
+                     }
+    
+    /*
+    *Update function
+    *takes gameloops delta time
+    */
+   this.update = function () {
+        if(this.state.slow > 0){
+            this.ATBTimer +=6;
+            this.state.slow--;
+            
+        }
+        else if(this.state.haste > 0){
+            this.ATBTimer +=15;
+            this.state.haste--;
+        }
+        else this.ATBTimer += 10;
+        
+        if(this.ATBTimer >= this.maxATB){
+            this.attack();
+        }
+    }
+    
+    /*
+    *AI attack function called when it's ATB timer hits 0
+    *AI should select one of it's skills (if it has the resources to execute it
+    *AI then selects a target (AI might need custom priorities to target lowest HP or %HP etc)
+    *reset timer to it's delay
+    */
+    this.attack = function () {
+        //select skill
+        
+        //target opponent
+        
+        //reset atbTimer
+        this.ATBTimer = 0;
+    }
+    
+}
+function Heinz(){
+    this.obj = new NPC();
+    this.obj.hp=100;
+    this.obj.xpGiven=10;
+    
+    this.obj.attack = function(){
+        gordonBattle.hp-=((2*this.level+10)/100)*(this.str/gordonBattle.def)+2;
+        this.ATBTimer=0;
+    }
+    this.obj.sprite = game.add.sprite(400,300,'heinz');
+    this.obj.sprite.anchor.set(.5);
+}
