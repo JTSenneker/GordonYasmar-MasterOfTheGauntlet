@@ -63,7 +63,7 @@ header nav ul li a:hover {
     color: #611427;
 }
 article h1{
-    font-size: 24px;
+    font-size: 26px;
     color: #ad2e4d;
     text-align: center;
     margin: 20px;
@@ -71,6 +71,13 @@ article h1{
 }
 article p {
     color: #f5f5eb;
+}
+article h2 {
+    font-size: 18px;
+    color: #ad2e4d;
+    text-align: center;
+    margin: 16px;
+    margin-bottom: 10px;    
 }
 article a h2 {
     font-size: 18px;
@@ -116,6 +123,9 @@ article {
 article p {
     text-indent: 25px;
 }
+.bio {
+    width: 45%;  
+}
 article img {
     width: 100%;
     display: block;
@@ -139,6 +149,12 @@ div.fillV, article.fillV{
     height:auto;
     box-sizing: border-box;
     margin-bottom: 0;
+}
+#biopic {
+    float: right;
+    margin-top: 50px;
+    max-height: 300px;
+    max-width: 300px;
 }
 
 

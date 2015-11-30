@@ -20,7 +20,8 @@ $(window).load(function(){
     
 });
 
-$( window ).resize(function() {
+$(window).resize(function() {
+   //setTimeout(setColumnHeights(), 5000);
     setColumnHeights();
 });
 
@@ -32,18 +33,20 @@ $( window ).resize(function() {
  */
 function setColumnHeights(){
     var maxHeight = 0;
-    if($(window).width() >= 833){
-        
-        //go through heights of all .fillV
-        $('.fillV').each(function(){
-            //set maxHeight if new value is larger
-            maxHeight = $(this).height() > maxHeight ? $(this).height() : maxHeight;
-        });
-    } else {
-        maxHeight = "auto";
-    }
+    
+     
+    $("div.fillV").height("auto");
+    $("article.fillV").height("auto");
+    
+    //go through heights of all .fillV
+    $('.fillV').each(function(){
+        //set maxHeight if new value is larger
+        maxHeight = $(this).height() > maxHeight ? $(this).height() : maxHeight;
+      //  alert(maxHeight);
+    });
+    if ($(window).width() <= 430) maxHeight = "auto";
+//    alert(maxHeight);
     //set all fillV heights to new max    
     $("div.fillV").height(maxHeight);
     $("article.fillV").height(maxHeight);
-        
 }
