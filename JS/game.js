@@ -6,19 +6,8 @@ var pathFinder;
 var level;
 var layer;
 var marker;
-var blocked = false;
-function findPathTo(tilex,tiley){
-     pathFinder.setCallbackFunction(function(path) {
-        path = path || [];
-        for(var i = 0, ilen = path.length; i < ilen; i++) {
-            map.putTile(0, path[i].x, path[i].y);
-        }
-        blocked=false;
-    });
-    pathFinder.preparePathCalculation([0,0],[tilex,tiley]);
-    pathFinder.calculatePath();
-    console.log("path found!")
-}
+
+
 
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
@@ -44,7 +33,6 @@ var overworld = function(){
         level.setCollision(1);
 
         Dungeon.Generate();
-        //Dungeon.Draw();
         player.draw();
         player.placePlayer();
         
@@ -74,7 +62,6 @@ var overworld = function(){
         game.physics.arcade.collide(player.sprite,layer);
 
         player.update();
-        //console.log(game.input.y);
         marker.x = layer.getTileX(game.input.activePointer.worldX)*32;
         marker.y = layer.getTileY(game.input.activePointer.worldY)*32;
         if(game.input.mousePointer.isDown){
@@ -111,8 +98,8 @@ var title = function(){
     this.create=function(){
         game.stage.backgroundColor = "#eeeeee";
         logo = game.add.sprite(0,0,"Logo");
-        yasmar = game.add.sprite(800,0,"Yasmar");
-        logo.scale.setTo(.75,.75);
+        yasmar = game.add.sprite(300,0,"Yasmar");
+        logo.scale.setTo(.5,.5);
 
     };
     this.update=function(){
@@ -134,27 +121,7 @@ var gameover = function(){
 };
 game.state.add("overworld", overworld);
 game.state.add("title", title);
-game.state.start("overworld");
-
-///////////////Tile Object///////////////////
-function Tile(posX,posY,value){
-    this.x = posX*32;
-    this.y = posY*32;
-    this.gridX=posX;
-    this.gridY=posY;
-    this.value = value;
-    this.sprite;
-    this.Draw = function(graphics){
-        if(this.value==1){
-            //this.sprite = game.add.sprite(this.x,this.y,'floorTile');
-            level.putTile(0,layer.getTileX(this.x),layer.getTileY(this.y),layer);
-            //this.sprite.smoothed=false;
-        }
-        else   level.putTile(1,layer.getTileX(this.x),layer.getTileY(this.y),layer);
-
-        
-    }
-}
+game.state.start("title");
 
 ////////////////Dungeon Object//////////////
 var Dungeon = {
@@ -285,23 +252,6 @@ var Dungeon = {
         }
         return closest;
     },
-    
-    //////////////////////////////////////
-    //////////GET TILE FUNCTION///////////
-    //////////////////////////////////////
-   /* GetTile:function(point){
-        if(point.x < 0 || point.y < 0) return null;
-        if(point.x > Dungeon.map[0].length || point.y > Dungeon.map.length) return null;
-        return Dungeon.map[point.x][point.y];
-    },
-    */
-    Draw:function(graphics){
-        for(var x=0;x<this.mapSize-1;x++){
-                for(var y=0;y<this.mapSize-1;y++){
-                    this.map[x][y].Draw(graphics);
-                }
-            }
-    }
 }
 
 ///////////////Overworld Player////////////
@@ -344,37 +294,6 @@ function PlayerOW(){
         if(cursors.right.isDown)this.sprite.body.velocity.x = 200;
         if(cursors.left.isDown)this.sprite.body.velocity.x = -200;
     };
-    this.goLeft=function(){
-        targetTile = level.getTileLeft(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
-       
-    }
-     this.goRight=function(){
-        targetTile = level.getTileRight(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
-      
-    }
-     this.goUp=function(){
-        targetTile = level.getTileAbove(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
-      
-    }
-     this.goDown=function(){
-        targetTile = level.getTileBelow(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
-        
-    }
-     this.updateMove=function(){
-      if(targetTile!=null && targetTile.index==0){
-            var targetPositionX = targetTile.worldX+targetTile.centerX;
-            var targetPositionY = targetTile.worldY+targetTile.centerY;
-
-            var diffX = targetPositionX - this.x;
-            var diffY = targetPositionY - this.y;
-
-            this.x+=diffX*.2;
-            this.y+=diffY*.2;
-
-            if(Math.abs(diffX)<1)this.x=targetPositionX;
-            if(Math.abs(diffY)<1)this.y=targetPositionY;
-        }   
-     }
     
 
 }
