@@ -81,7 +81,6 @@ Eric Selover
         </p>
             </div>
 
-
     </article>
 
     <div class="col1"></div>
