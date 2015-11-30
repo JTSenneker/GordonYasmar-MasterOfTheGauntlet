@@ -1,7 +1,7 @@
 var game = new Phaser.Game(800,600,Phaser.AUTO,'');
-<<<<<<< HEAD
 
-=======
+
+
 var pathFinder;
 var level;
 var layer;
@@ -19,7 +19,7 @@ function findPathTo(tilex,tiley){
     pathFinder.calculatePath();
     console.log("path found!")
 }
->>>>>>> origin/NewEngine
+
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
     return~~ (Math.random() * (max - min)) + min;
@@ -33,9 +33,7 @@ var overworld = function(){
         
     };
     this.create=function(){
-<<<<<<< HEAD
-       
-=======
+
         game.physics.startSystem(Phaser.Physics.ARCADE);
         
         
@@ -43,12 +41,12 @@ var overworld = function(){
         level.addTilesetImage('floorTile');
         layer = level.create('layer',64,64,32,32);
         layer.resizeWorld();
-        
->>>>>>> origin/NewEngine
+        level.setCollision(1);
+
         Dungeon.Generate();
         //Dungeon.Draw();
         player.draw();
-        
+        player.placePlayer();
         
         var walkables = [1];
         
@@ -61,32 +59,31 @@ var overworld = function(){
         
         
         
-        game.physics.enable(player.sprite);
+        game.physics.enable(player.sprite,Phaser.Physics.ARCADE);
+        player.sprite.body.setSize(32,32,2,1);
+        player.sprite.collideWorldBounds=true;
         game.camera.follow(player.sprite);
-       // game.camera.scale.setTo(1,1);
+        game.camera.scale.setTo(1,1);
         game.world.setBounds(0,0,Dungeon.mapSize*32*game.camera.scale.x,Dungeon.mapSize*32*game.camera.scale.y);
         player.sprite.smoothed = false;
         cursors = game.input.keyboard.createCursorKeys();
         
+        
     };
     this.update=function(){
-<<<<<<< HEAD
-        player.x+=1;
-        player.sprite.position.x +=1;
-=======
+        game.physics.arcade.collide(player.sprite,layer);
+
         player.update();
         //console.log(game.input.y);
         marker.x = layer.getTileX(game.input.activePointer.worldX)*32;
         marker.y = layer.getTileY(game.input.activePointer.worldY)*32;
         if(game.input.mousePointer.isDown){
-            blocked=true;
-            //player.findPathTo(layer.getTileX(marker.x),layer.getTileY(marker.y));
             console.log(level.getTile(layer.getTileX(marker.x),layer.getTileY(marker.y)));
             player.gridTargetX=layer.getTileX(marker.x)*32;
             player.gridTargetY=layer.getTileY(marker.y)*32;
         }
         
->>>>>>> origin/NewEngine
+
     };
     this.render=function(){};
 };
@@ -106,16 +103,6 @@ var battle = function(){
 
 var title = function(){
     var logo;
-<<<<<<< HEAD
-    this.preload=function(){
-        game.load.image("logo","imgs/GordonYasmarLogo.png");
-        
-    };
-    this.create=function(){
-        game.stage.backgroundColor = "#eeeeee";
-        logo = game.add.sprite(0,0,'logo');
-        logo.scale.setTo(.5,.5);
-=======
     var yasmar;
     this.preload=function(){
         game.load.image("Logo","imgs/GordonYasmarLogo.png");
@@ -126,7 +113,7 @@ var title = function(){
         logo = game.add.sprite(0,0,"Logo");
         yasmar = game.add.sprite(800,0,"Yasmar");
         logo.scale.setTo(.75,.75);
->>>>>>> origin/NewEngine
+
     };
     this.update=function(){
         
@@ -147,7 +134,7 @@ var gameover = function(){
 };
 game.state.add("overworld", overworld);
 game.state.add("title", title);
-game.state.start("title");
+game.state.start("overworld");
 
 ///////////////Tile Object///////////////////
 function Tile(posX,posY,value){
@@ -190,7 +177,8 @@ var Dungeon = {
         for (var x = 0;x<this.mapSize-1;x++){
             this.map[x]=[];
             for(var y = 0; y<this.mapSize-1;y++){
-                this.map[x][y] = new Tile(x,y,0);
+                this.map[x][y] = 0;
+                level.putTile(1,x,y,layer);
             }
         }
 
@@ -325,43 +313,72 @@ function PlayerOW(){
     this.gridTargetY = 32;
     this.x=32;
     this.y=32;
-<<<<<<< HEAD
     this.sprite;
+    this.placedOnMap=false;
+    this.targetTile = null;
+    var me = this;
+    var targetTile;
+    this.placePlayer=function(){
+        while(!this.placedOnMap){
+            var spawnTile = level.getTile(GetRandom(1,63),GetRandom(1,64));
+            
+            if(spawnTile!=null && spawnTile.index==0){
+                this.sprite.position.x=spawnTile.worldX+spawnTile.centerX;
+                this.sprite.position.y=spawnTile.worldY+spawnTile.centerY;
+                this.placedOnMap=true;
+                player.collideWorldBounds=true;
+            }
+        }
+        console.log(this.targetTile);
+    }
     this.draw=function(){
         this.sprite = game.add.sprite(this.x,this.y,'gordon');
-=======
-    this.path = [];
-    this.findPath=true;
-    this.sprite;
-    var me = this;
-    this.draw=function(){
-       this.sprite = game.add.sprite(this.x,this.y,'gordon');
->>>>>>> origin/NewEngine
+        this.sprite.anchor.x=.5;
+        this.sprite.anchor.y=.5;
+
     }
     this.update=function(){
-        this.sprite.position.x=this.x;
-        this.sprite.position.y=this.y;
+        this.sprite.body.velocity.set(0);
+        if(cursors.up.isDown)this.sprite.body.velocity.y = -200;
+        if(cursors.down.isDown)this.sprite.body.velocity.y = 200;
+        if(cursors.right.isDown)this.sprite.body.velocity.x = 200;
+        if(cursors.left.isDown)this.sprite.body.velocity.x = -200;
+    };
+    this.goLeft=function(){
+        targetTile = level.getTileLeft(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
+       
+    }
+     this.goRight=function(){
+        targetTile = level.getTileRight(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
+      
+    }
+     this.goUp=function(){
+        targetTile = level.getTileAbove(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
+      
+    }
+     this.goDown=function(){
+        targetTile = level.getTileBelow(level.getLayer(),layer.getTileX(this.x),layer.getTileY(this.y));
         
-        if(cursors.up.isDown)this.y-=4;
-        if(cursors.down.isDown)this.y+=4;
-        if(cursors.right.isDown)this.x+=4;
-        if(cursors.left.isDown)this.x-=4;
-    };
-    this.findPathTo=function(tilex, tiley) {
+    }
+     this.updateMove=function(){
+      if(targetTile!=null && targetTile.index==0){
+            var targetPositionX = targetTile.worldX+targetTile.centerX;
+            var targetPositionY = targetTile.worldY+targetTile.centerY;
 
-    pathFinder.setCallbackFunction(function(path) {
-        path = path || [];
-        for(var i = 0, ilen = path.length; i < ilen; i++) {
-            level.putTile(0, path[i].x, path[i].y);
-        }
-        blocked = false;
-    });
+            var diffX = targetPositionX - this.x;
+            var diffY = targetPositionY - this.y;
 
-    pathFinder.preparePathCalculation([0,0], [tilex,tiley]);
-    pathFinder.calculatePath();
-    };
+            this.x+=diffX*.2;
+            this.y+=diffY*.2;
+
+            if(Math.abs(diffX)<1)this.x=targetPositionX;
+            if(Math.abs(diffY)<1)this.y=targetPositionY;
+        }   
+     }
+    
 
 }
+
 
 /////////////POINT OBJECT////////////////
 function Point(pointX,pointY){
@@ -390,4 +407,4 @@ var TileHelper = {
     gridToPixel:function(point){
         return {x:point.x*32,y:point.y*32};
     }
-}
+};
