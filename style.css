@@ -153,8 +153,6 @@ div.fillV, article.fillV{
 #biopic {
     float: right;
     margin-top: 50px;
-    max-height: 300px;
-    max-width: 300px;
 }
 
 
@@ -217,9 +215,9 @@ canvas {
     box-sizing: border-box;
 }
 
-/********************************/
-/*---------Media Queries--------*/
-/********************************/
+/********************************************/
+/*-------------Media Queries----------------*/
+/********************************************/
 @media screen and (max-width: 850px){
     header nav.col5 {
         width: 98%;
@@ -269,5 +267,23 @@ canvas {
     }
     header nav ul li a {
         line-height: 50px;
+    }
+    
+/********************************/
+/*----------About Page----------*/
+/********************************/
+    article.about {
+        width: 100%;   
+    }
+    article.about div.col7 {
+        width: 100%;   
+    }
+    article.about h1{
+        font-size: 36px;   
+    }
+    article.about h1, article.about h2 {
+        margin-left: 0;   
+        margin-right: 0;  
+        padding: 0;
     }
 }
