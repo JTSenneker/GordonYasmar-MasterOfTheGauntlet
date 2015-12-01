@@ -70,32 +70,47 @@ var battle = function(){
     var healthFrame;
     var manaFrame;
     var ATBFrame;
+    var ATBBar;
+    var ATBCrop;
     var healthBar;
     var healthCrop;
     var timer;
     var enemy;
+    var attackButton;
     this.preload=function(){
         game.load.image("heinz","imgs/Heinz.png");
         game.load.image("hpFrame","imgs/BattleSystem/GUI/HealthBarFrame.png");
         game.load.image("manaFrame","imgs/BattleSystem/GUI/ManaBarFrame.png");
         game.load.image("ATBFrame","imgs/BattleSystem/GUI/ATBFrame.png");
         game.load.image("HealthBar","imgs/BattleSystem/GUI/HealthBar.png");
+        game.load.image("ATBBar","imgs/BattleSystem/GUI/ATB.png");
+        game.load.spritesheet('attackButton',"imgs/BattleSystem/GUI/AttackButtonSheet.png",224,100);
     };
     this.create=function(){
         healthBar=game.add.sprite(10,477,'HealthBar');
+        ATBBar = game.add.sprite(10,544,'ATBBar');
+        ATBCrop = new Phaser.Rectangle(0,0,0,ATBBar.height);
         enemy = new Heinz();
         healthCrop=new Phaser.Rectangle(0,0,0,healthBar.height);
         manaFrame=game.add.sprite(0,492,'manaFrame');
         healthFrame=game.add.sprite(0,454,'hpFrame');
         ATBFrame=game.add.sprite(0,526,'ATBFrame');
         game.stage.backgroundColor = "#eeeeee";
+        
+        attackButton = game.add.button(500,400,'attackButton',attackButton,this,0,1,2);
+        
     };
+    function attackButton(){
+        gordonBattle.ATBTimer=0;
+    }
     this.update=function(){
         healthBar.crop(healthCrop);
         gordonBattle.update();
         healthCrop.width = (gordonBattle.hp/gordonBattle.maxHP)*188;
+        ATBBar.crop(ATBCrop);
+        ATBCrop.width = (gordonBattle.ATBTimer/gordonBattle.maxATB)*188;
         enemy.obj.update();
-        console.log(enemy.obj.ATBTimer);
+        //console.log(gordonBattle.ATBTimer);
     };
     this.render=function(){};
 };
@@ -311,36 +326,6 @@ function PlayerOW(){
 
 }
 
-
-/////////////POINT OBJECT////////////////
-function Point(pointX,pointY){
-    this.x=pointX;
-    this.y=pointY;
-    
-    this.getUp=function(){
-        return new Point(this.x,this.y-1);
-    };
-    this.getDown=function(){
-        return new Point(this.x,this.y+1);
-    };
-    this.getLeft=function(){
-        return new Point(this.x-1,this.y);
-    };
-    this.getRight=function(){
-        return new Point(this.x+1,this.y);
-    };
-}
-
-////////////TILE HELPER OBJECT//////////
-var TileHelper = {
-    pixelToGrid:function(x,y){
-        return new Point(~~(x/32),~~(y/32));
-    },
-    gridToPixel:function(point){
-        return {x:point.x*32,y:point.y*32};
-    }
-};
-
 function PCBattle () {
     
     
@@ -368,7 +353,7 @@ function PCBattle () {
     this.int = 1;
     this.dex = 1;
     this.eva = 1;
-    this.spd = 1;
+    this.spd = 4;
     this.maxATB=((60-this.spd)*160);
     
     //internal timer for battle turn
@@ -401,7 +386,7 @@ function PCBattle () {
         else this.ATBTimer += 10;
         
         if(this.ATBTimer >= this.maxATB){
-            this.attack();
+            //this.attack();
         }
     }
     
@@ -448,6 +433,8 @@ function NPC (){
     this.dex = 1;
     this.eva = 1;
     this.spd = 1;
+    
+    this.baseAtk=10;
     this.maxATB=((60-this.spd)*160);
     //ATB timer
     this.ATBTimer = 0;
@@ -504,11 +491,15 @@ function Heinz(){
     this.obj = new NPC();
     this.obj.hp=100;
     this.obj.xpGiven=10;
+    this.obj.str=3;
+    this.obj.spd=4;
+    this.obj.baseAtk=25;
     
     this.obj.attack = function(){
-        gordonBattle.hp-=((2*this.level+10)/100)*(this.str/gordonBattle.def)+2;
+        gordonBattle.hp-=((2*this.level+10)/100)*(this.str/gordonBattle.def)*this.baseAtk+2;
         this.ATBTimer=0;
     }
     this.obj.sprite = game.add.sprite(400,300,'heinz');
     this.obj.sprite.anchor.set(.5);
 }
+
