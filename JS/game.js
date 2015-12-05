@@ -76,7 +76,28 @@ var battle = function(){
     var healthCrop;
     var timer;
     var enemy;
-    var attackButton;
+    var buttons = {
+        attackButton:0,
+        healButton:0,
+        runButton:0,
+        fireButton:0,
+        iceButton:0,
+        hasteButton:0,
+    }
+    var buttonLocations = {
+        runX:249,
+        runY:527,
+        attackX:248,
+        attackY:452,
+        fireX:227,
+        fireY:382,
+        iceX:168,
+        iceY:329,
+        hasteX:15,
+        hasteY:313,
+        healX:91,
+        healY:312
+    };
     this.preload=function(){
         game.load.image("heinz","imgs/Heinz.png");
         game.load.image("hpFrame","imgs/BattleSystem/GUI/HealthBarFrame.png");
@@ -84,20 +105,26 @@ var battle = function(){
         game.load.image("ATBFrame","imgs/BattleSystem/GUI/ATBFrame.png");
         game.load.image("HealthBar","imgs/BattleSystem/GUI/HealthBar.png");
         game.load.image("ATBBar","imgs/BattleSystem/GUI/ATB.png");
-        game.load.spritesheet('attackButton',"imgs/BattleSystem/GUI/AttackButtonSheet.png",224,100);
+        game.load.image("gordonSprite","imgs/BattleSystem/GUI/gordonBattleSprite.png");
+        game.load.spritesheet('buttonSheet',"imgs/BattleSystem/GUI/ButtonSheet.png",64,64);
     };
     this.create=function(){
-        healthBar=game.add.sprite(10,477,'HealthBar');
-        ATBBar = game.add.sprite(10,544,'ATBBar');
+        healthBar=game.add.sprite(547,477,'HealthBar');
+        ATBBar = game.add.sprite(547,544,'ATBBar');
         ATBCrop = new Phaser.Rectangle(0,0,0,ATBBar.height);
         enemy = new Heinz();
         healthCrop=new Phaser.Rectangle(0,0,0,healthBar.height);
-        manaFrame=game.add.sprite(0,492,'manaFrame');
-        healthFrame=game.add.sprite(0,454,'hpFrame');
-        ATBFrame=game.add.sprite(0,526,'ATBFrame');
+        manaFrame=game.add.sprite(537,492,'manaFrame');
+        healthFrame=game.add.sprite(537,454,'hpFrame');
+        ATBFrame=game.add.sprite(537,526,'ATBFrame');
         game.stage.backgroundColor = "#eeeeee";
-        
-        attackButton = game.add.button(500,400,'attackButton',attackButton,this,0,1,2);
+        gordonBattle.sprite = game.add.sprite(6,404,'gordonSprite');
+        buttons.attackButton = game.add.button(buttonLocations.attackX,buttonLocations.attackY,'buttonSheet',attackButton,this,16,15,17);
+        buttons.fireButton = game.add.button(buttonLocations.fireX,buttonLocations.fireY,'buttonSheet',attackButton,this,4,3,5);
+        buttons.healButton = game.add.button(buttonLocations.healX,buttonLocations.healY,'buttonSheet',attackButton,this,1,0,2);
+        buttons.iceButton = game.add.button(buttonLocations.iceX,buttonLocations.iceY,'buttonSheet',attackButton,this,7,6,8);
+        buttons.hasteButton = game.add.button(buttonLocations.hasteX,buttonLocations.hasteY,'buttonSheet',attackButton,this,10,9,11);
+        buttons.runButton = game.add.button(buttonLocations.runX,buttonLocations.runY,'buttonSheet',attackButton,this,13,12,14);
         
     };
     function attackButton(){
@@ -329,7 +356,7 @@ function PlayerOW(){
 function PCBattle () {
     
     
-    
+    this.sprite = 0;
     //data
     this.name = "Gordon";
     this.state={
