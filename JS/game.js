@@ -1,14 +1,15 @@
 var game = new Phaser.Game(800,600,Phaser.AUTO,'');
 
-
-
+var damageText;
+ var attackAnimation;
 var pathFinder;
 var level;
 var layer;
 var marker;
 var gordonBattle = new PCBattle();
 
-
+var BattleAnim;
+var animationInProgress=false;
 
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
@@ -75,6 +76,8 @@ var battle = function(){
     var healthBar;
     var healthCrop;
     var timer;
+    var manaBar;
+    var manaCrop;
     var enemy;
     var buttons = {
         attackButton:0,
@@ -98,6 +101,7 @@ var battle = function(){
         healX:91,
         healY:312
     };
+    
     this.preload=function(){
         game.load.image("heinz","imgs/Heinz.png");
         game.load.image("hpFrame","imgs/BattleSystem/GUI/HealthBarFrame.png");
@@ -105,33 +109,119 @@ var battle = function(){
         game.load.image("ATBFrame","imgs/BattleSystem/GUI/ATBFrame.png");
         game.load.image("HealthBar","imgs/BattleSystem/GUI/HealthBar.png");
         game.load.image("ATBBar","imgs/BattleSystem/GUI/ATB.png");
-        game.load.image("gordonSprite","imgs/BattleSystem/GUI/gordonBattleSprite.png");
+        game.load.image("ManaBar","imgs/BattleSystem/GUI/ManaBar.png");
+        game.load.image("gordonSprite","imgs/BattleSystem/GUI/GordonBattleSprite.png");
         game.load.spritesheet('buttonSheet',"imgs/BattleSystem/GUI/ButtonSheet.png",64,64);
+        game.load.spritesheet('slashAttack',"imgs/BattleSystem/Animations/slashAnimation.png",240,256);
+        game.load.spritesheet('fireSpell',"imgs/BattleSystem/Animations/FireSpellEffect.png",64,64);
+        game.load.spritesheet('iceSpell',"imgs/BattleSystem/Animations/IceSpellEffect.png",256,256);
     };
     this.create=function(){
+        damageText=game.add.text(32,32,"",{fill:'white'});
+        game.stage.backgroundColor = "#333333";
+        
         healthBar=game.add.sprite(547,477,'HealthBar');
+        manaBar=game.add.sprite(547,510,'ManaBar');
         ATBBar = game.add.sprite(547,544,'ATBBar');
         ATBCrop = new Phaser.Rectangle(0,0,0,ATBBar.height);
-        enemy = new Heinz();
         healthCrop=new Phaser.Rectangle(0,0,0,healthBar.height);
+        manaCrop=new Phaser.Rectangle(0,0,0,manaBar.height);
         manaFrame=game.add.sprite(537,492,'manaFrame');
         healthFrame=game.add.sprite(537,454,'hpFrame');
         ATBFrame=game.add.sprite(537,526,'ATBFrame');
-        game.stage.backgroundColor = "#eeeeee";
+        
+        enemy = new Heinz();
         gordonBattle.sprite = game.add.sprite(6,404,'gordonSprite');
+        
+        
         buttons.attackButton = game.add.button(buttonLocations.attackX,buttonLocations.attackY,'buttonSheet',attackButton,this,16,15,17);
-        buttons.fireButton = game.add.button(buttonLocations.fireX,buttonLocations.fireY,'buttonSheet',attackButton,this,4,3,5);
+        buttons.fireButton = game.add.button(buttonLocations.fireX,buttonLocations.fireY,'buttonSheet',fireSpellButton,this,4,3,5);
         buttons.healButton = game.add.button(buttonLocations.healX,buttonLocations.healY,'buttonSheet',attackButton,this,1,0,2);
-        buttons.iceButton = game.add.button(buttonLocations.iceX,buttonLocations.iceY,'buttonSheet',attackButton,this,7,6,8);
+        buttons.iceButton = game.add.button(buttonLocations.iceX,buttonLocations.iceY,'buttonSheet',iceSpellButton,this,7,6,8);
         buttons.hasteButton = game.add.button(buttonLocations.hasteX,buttonLocations.hasteY,'buttonSheet',attackButton,this,10,9,11);
         buttons.runButton = game.add.button(buttonLocations.runX,buttonLocations.runY,'buttonSheet',attackButton,this,13,12,14);
         
     };
     function attackButton(){
-        gordonBattle.ATBTimer=0;
+        if(animationInProgress===false){
+            attackAnimation = game.add.sprite(500,350,'slashAttack',5);
+            attackAnimation.anchor.set(.5);
+            animationInProgress=true;
+            attackAnimation.position.x=400;
+            attackAnimation.position.y=300;
+            BattleAnim = attackAnimation.animations.add('slash',null,10);
+            BattleAnim.play();
+            gordonBattle.ATBTimer=0;
+            BattleAnim.onComplete.add(function(){
+                    var dmg = Math.floor(((2*gordonBattle.level+10)/100)*(gordonBattle.str/enemy.obj.def)*gordonBattle.baseAtk+GetRandom(2,8));
+                    enemy.obj.hp-=dmg;
+                    damageText.text=dmg;
+                    
+                    animationInProgress=false;
+                   
+                });
+        }
+    }
+    function iceSpellButton(){
+        if(gordonBattle.mp-20>=0){
+            if(animationInProgress===false){
+                gordonBattle.mp-=20;
+                attackAnimation = game.add.sprite(500,350,'iceSpell',18);
+                attackAnimation.anchor.set(.5);
+                attackAnimation.scale.set(.75);
+                attackAnimation.smoothed=false;
+                animationInProgress=true;
+                attackAnimation.position.x=400;
+                attackAnimation.position.y=300;
+                BattleAnim = attackAnimation.animations.add('slash',null,10);
+                BattleAnim.play();
+                gordonBattle.ATBTimer=0;
+                BattleAnim.onComplete.add(function(){
+                        var dmg = Math.floor(((2*gordonBattle.level+10)/100)*(gordonBattle.int/enemy.obj.def)*150+GetRandom(2,8));
+                        enemy.obj.state.slow=1200;
+                        enemy.obj.hp-=dmg;
+                        damageText.text=dmg;
+
+                        animationInProgress=false;
+
+                    });
+            }
+        }else damageText.text="You don't have enought Magic!"
+    }
+    function fireSpellButton(){
+        if(gordonBattle.mp-20>=0){
+            if(animationInProgress===false){
+                gordonBattle.mp-=20;
+                attackAnimation = game.add.sprite(500,350,'fireSpell',11);
+                attackAnimation.anchor.set(.5);
+                attackAnimation.scale.set(2);
+                attackAnimation.smoothed=false;
+                animationInProgress=true;
+                attackAnimation.position.x=400;
+                attackAnimation.position.y=300;
+                BattleAnim = attackAnimation.animations.add('slash',null,10);
+                BattleAnim.play();
+                gordonBattle.ATBTimer=0;
+                BattleAnim.onComplete.add(function(){
+                        var dmg = Math.floor(((2*gordonBattle.level+10)/100)*(gordonBattle.int/enemy.obj.def)*200+GetRandom(2,8));
+                        enemy.obj.hp-=dmg;
+                        damageText.text=dmg;
+
+                        animationInProgress=false;
+
+                    });
+            }
+        }else damageText.text="You don't have enought Magic!"
     }
     this.update=function(){
+        if(gordonBattle.ATBTimer>=gordonBattle.maxATB){
+            revealButtons();
+        }else{
+            hideButtons();
+        }
         healthBar.crop(healthCrop);
+        manaBar.crop(manaCrop);
+        manaCrop.width = (gordonBattle.mp/gordonBattle.maxMP)*188;
         gordonBattle.update();
         healthCrop.width = (gordonBattle.hp/gordonBattle.maxHP)*188;
         ATBBar.crop(ATBCrop);
@@ -140,6 +230,46 @@ var battle = function(){
         //console.log(gordonBattle.ATBTimer);
     };
     this.render=function(){};
+    function revealButtons(){
+        buttons.attackButton.x=buttonLocations.attackX;
+        buttons.attackButton.y=buttonLocations.attackY;
+        buttons.runButton.x=buttonLocations.runX;
+        buttons.runButton.y=buttonLocations.runY;
+        
+        if(gordonBattle.hasLearned.fire>0){
+            buttons.fireButton.x=buttonLocations.fireX;
+            buttons.fireButton.y=buttonLocations.fireY;
+        }
+        if(gordonBattle.hasLearned.blizzard>0){
+            buttons.iceButton.x=buttonLocations.iceX;
+            buttons.iceButton.y=buttonLocations.iceY;
+        }
+        if(gordonBattle.hasLearned.haste>0){
+            buttons.hasteButton.x=buttonLocations.hasteX;
+            buttons.hasteButton.y=buttonLocations.hasteY;
+        }
+        if(gordonBattle.hasLearned.heal>0){
+            buttons.healButton.x=buttonLocations.healX;
+            buttons.healButton.y=buttonLocations.healY;
+        }
+        
+    }
+    function hideButtons(){
+        buttons.attackButton.x=-1000;
+        buttons.attackButton.y=-1000;
+        buttons.runButton.x=-1000;
+        buttons.runButton.y=-1000;
+        buttons.fireButton.x=-1000;
+        buttons.fireButton.y=-1000;
+        buttons.iceButton.x=-1000;
+        buttons.iceButton.y=-1000;
+        buttons.healButton.x=-1000;
+        buttons.healButton.y=-1000;
+        buttons.hasteButton.x=-1000;
+        buttons.hasteButton.y=-1000;
+        
+        
+    }
 };
 
 var title = function(){
@@ -370,19 +500,20 @@ function PCBattle () {
     this.hp = 100;
     this.maxHP=100;
     this.mp = 100;
+    this.maxMP=100;
     
     //core stats ( can use array structure if preferred)
     //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
-    this.vit = 1;
-    this.mag = 1;        
-    this.str = 1;
-    this.def = 1;
-    this.int = 1;
-    this.dex = 1;
-    this.eva = 1;
-    this.spd = 4;
+    this.vit = 5;
+    this.mag = 5;        
+    this.str = 5;
+    this.def = 5;
+    this.int = 5;
+    this.dex = 5;
+    this.eva = 5;
+    this.spd = 5;
     this.maxATB=((60-this.spd)*160);
-    
+    this.baseAtk=100;
     //internal timer for battle turn
     this.ATBTimer = 0;
     
@@ -390,9 +521,9 @@ function PCBattle () {
     *These can serve as a 1/0 boolean, or allow for increasing incrimentation
     *if desired (i.e. "fire 2" etc)
     */
-    this.hasLearned = {fire:0,
-                      blizzard:0,
-                      thunder:0,
+    this.hasLearned = {fire:1,
+                      blizzard:1,
+                      heal:0,
                       haste:0,
                      };
     
@@ -401,6 +532,8 @@ function PCBattle () {
     *updates attack timer for the hero
     */
     this.update = function () {
+        if(this.hp<=0)this.hp=0;
+        if(this.mp<=0)this.mp=0;
         if(this.state.slow > 0){
             this.ATBTimer +=6;
             this.state.slow--;
@@ -412,9 +545,6 @@ function PCBattle () {
         }
         else this.ATBTimer += 10;
         
-        if(this.ATBTimer >= this.maxATB){
-            //this.attack();
-        }
     }
     
     /*
@@ -452,14 +582,14 @@ function NPC (){
     
     //core stats (can use array structure if preferred)
     //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
-    this.vit = 1;
-    this.mag = 1;        
-    this.str = 1;
-    this.def = 1;
-    this.int = 1;
-    this.dex = 1;
-    this.eva = 1;
-    this.spd = 1;
+    this.vit = 5;
+    this.mag = 5;        
+    this.str = 5;
+    this.def = 5;
+    this.int = 5;
+    this.dex = 5;
+    this.eva = 5;
+    this.spd = 5;
     
     this.baseAtk=10;
     this.maxATB=((60-this.spd)*160);
@@ -517,14 +647,28 @@ function NPC (){
 function Heinz(){
     this.obj = new NPC();
     this.obj.hp=100;
+    this.obj.def=4;
     this.obj.xpGiven=10;
-    this.obj.str=3;
-    this.obj.spd=4;
     this.obj.baseAtk=25;
     
     this.obj.attack = function(){
-        gordonBattle.hp-=((2*this.level+10)/100)*(this.str/gordonBattle.def)*this.baseAtk+2;
-        this.ATBTimer=0;
+        if(animationInProgress===false){
+            animationInProgress = true;
+            attackAnimation = game.add.sprite(500,350,'slashAttack',5);
+            attackAnimation.position.x=gordonBattle.sprite.position.x;
+            attackAnimation.position.y=gordonBattle.sprite.position.y;
+            BattleAnim = attackAnimation.animations.add('slash',null,10);
+            BattleAnim.play();
+            var dmg = ((2*this.level+10)/100)*(this.str/gordonBattle.def)*this.baseAtk+2;
+            var me = this;
+            BattleAnim.onComplete.add(function(){
+                
+                gordonBattle.hp-=dmg;
+                damageText.text=dmg;
+                animationInProgress=false;
+                me.ATBTimer=0;
+            });
+        }
     }
     this.obj.sprite = game.add.sprite(400,300,'heinz');
     this.obj.sprite.anchor.set(.5);
