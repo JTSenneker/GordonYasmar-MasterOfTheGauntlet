@@ -1,7 +1,7 @@
 var game = new Phaser.Game(800,600,Phaser.AUTO,'');
 
 var damageText;
- var attackAnimation;
+var attackAnimation;
 var pathFinder;
 var level;
 var layer;
@@ -103,6 +103,7 @@ var battle = function(){
     };
     
     this.preload=function(){
+        
         game.load.image("heinz","imgs/Heinz.png");
         game.load.image("hpFrame","imgs/BattleSystem/GUI/HealthBarFrame.png");
         game.load.image("manaFrame","imgs/BattleSystem/GUI/ManaBarFrame.png");
@@ -115,6 +116,8 @@ var battle = function(){
         game.load.spritesheet('slashAttack',"imgs/BattleSystem/Animations/slashAnimation.png",240,256);
         game.load.spritesheet('fireSpell',"imgs/BattleSystem/Animations/FireSpellEffect.png",64,64);
         game.load.spritesheet('iceSpell',"imgs/BattleSystem/Animations/IceSpellEffect.png",256,256);
+        game.load.spritesheet("HasteAnim","imgs/BattleSystem/Animations/HasteAnimation.png",117,122);
+        game.load.spritesheet("CureSpell","imgs/BattleSystem/Animations/CureSpellEffect.png",64,64);
     };
     this.create=function(){
         damageText=game.add.text(32,32,"",{fill:'white'});
@@ -134,14 +137,15 @@ var battle = function(){
         gordonBattle.sprite = game.add.sprite(6,404,'gordonSprite');
         
         
-        buttons.attackButton = game.add.button(buttonLocations.attackX,buttonLocations.attackY,'buttonSheet',attackButton,this,16,15,17);
-        buttons.fireButton = game.add.button(buttonLocations.fireX,buttonLocations.fireY,'buttonSheet',fireSpellButton,this,4,3,5);
-        buttons.healButton = game.add.button(buttonLocations.healX,buttonLocations.healY,'buttonSheet',attackButton,this,1,0,2);
-        buttons.iceButton = game.add.button(buttonLocations.iceX,buttonLocations.iceY,'buttonSheet',iceSpellButton,this,7,6,8);
-        buttons.hasteButton = game.add.button(buttonLocations.hasteX,buttonLocations.hasteY,'buttonSheet',attackButton,this,10,9,11);
-        buttons.runButton = game.add.button(buttonLocations.runX,buttonLocations.runY,'buttonSheet',attackButton,this,13,12,14);
+        buttons.attackButton = game.add.button(-1000,-1000,'buttonSheet',attackButton,this,16,15,17);
+        buttons.fireButton = game.add.button(-1000,-1000,'buttonSheet',fireSpellButton,this,4,3,5);
+        buttons.healButton = game.add.button(-1000,-1000,'buttonSheet',cureSpellButton,this,1,0,2);
+        buttons.iceButton = game.add.button(-1000,-1000,'buttonSheet',iceSpellButton,this,7,6,8);
+        buttons.hasteButton = game.add.button(-1000,-1000,'buttonSheet',hasteSpellButton,this,10,9,11);
+        buttons.runButton = game.add.button(-1000,-1000,'buttonSheet',attackButton,this,13,12,14);
         
     };
+    /////Call back functions for the buttons
     function attackButton(){
         if(animationInProgress===false){
             attackAnimation = game.add.sprite(500,350,'slashAttack',5);
@@ -213,12 +217,59 @@ var battle = function(){
             }
         }else damageText.text="You don't have enought Magic!"
     }
+    function hasteSpellButton(){
+        if(gordonBattle.mp-20>=0){
+            if(animationInProgress===false){
+                gordonBattle.mp-=20;
+                attackAnimation = game.add.sprite(gordonBattle.sprite.position.x,gordonBattle.sprite.position.y,'HasteAnim');
+               // attackAnimation.anchor.set(.5);
+                attackAnimation.scale.set(2);
+                attackAnimation.smoothed=false;
+                animationInProgress=true;
+                BattleAnim = attackAnimation.animations.add('slash',null);
+                BattleAnim.play('slash',10,false,true);
+                gordonBattle.state.haste=3000;
+                gordonBattle.ATBTimer=0;
+                BattleAnim.onComplete.add(function(){
+                       
+                        
+                        animationInProgress=false;
+
+                    });
+            }
+        }else damageText.text="You don't have enought Magic!"
+    }
+    function cureSpellButton(){
+        if(gordonBattle.mp-20>=0){
+            if(animationInProgress===false){
+                gordonBattle.mp-=20;
+                attackAnimation = game.add.sprite(gordonBattle.sprite.position.x,gordonBattle.sprite.position.y,'CureSpell');
+               // attackAnimation.anchor.set(.5);
+                attackAnimation.scale.set(2);
+                attackAnimation.smoothed=false;
+                animationInProgress=true;
+                BattleAnim = attackAnimation.animations.add('slash',null,10);
+                BattleAnim.play();
+                
+                gordonBattle.ATBTimer=0;
+                BattleAnim.onComplete.add(function(){
+                       
+                        gordonBattle.hp+=100; 
+                        animationInProgress=false;
+
+                    });
+            }
+        }else damageText.text="You don't have enought Magic!"
+    }
+    
     this.update=function(){
         if(gordonBattle.ATBTimer>=gordonBattle.maxATB){
             revealButtons();
         }else{
             hideButtons();
         }
+        
+        console.log(gordonBattle.mp);
         healthBar.crop(healthCrop);
         manaBar.crop(manaCrop);
         manaCrop.width = (gordonBattle.mp/gordonBattle.maxMP)*188;
@@ -491,16 +542,13 @@ function PCBattle () {
     this.name = "Gordon";
     this.state={
         slow:0,
-        haste:1000,
+        haste:0,
     };
     //PC level
     this.level = 1;
-    
-    //PC hp and mp - need a formula to derive these from core stats
-    this.hp = 100;
-    this.maxHP=100;
-    this.mp = 100;
-    this.maxMP=100;
+    //PC xp - used to help the player level up
+    this.xp = 0;
+    this.maxXP=Math.floor((this.level+300*Math.pow(2,this.level/7))/4);
     
     //core stats ( can use array structure if preferred)
     //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
@@ -517,14 +565,22 @@ function PCBattle () {
     //internal timer for battle turn
     this.ATBTimer = 0;
     
+    //PC hp and mp - need a formula to derive these from core stats
+    
+    this.maxHP=100+(3*this.vit*this.level)+(this.level*4);
+    this.hp = this.maxHP;
+    
+    this.maxMP=100+(3*this.mag*this.level)+(this.level*4);
+    this.mp = this.maxMP;
+    
     /*
     *These can serve as a 1/0 boolean, or allow for increasing incrimentation
     *if desired (i.e. "fire 2" etc)
     */
     this.hasLearned = {fire:1,
                       blizzard:1,
-                      heal:0,
-                      haste:0,
+                      heal:1,
+                      haste:1,
                      };
     
     /*
@@ -532,6 +588,7 @@ function PCBattle () {
     *updates attack timer for the hero
     */
     this.update = function () {
+        if(this.hp>this.maxHP)this.hp=this.maxHP;
         if(this.hp<=0)this.hp=0;
         if(this.mp<=0)this.mp=0;
         if(this.state.slow > 0){
@@ -540,7 +597,7 @@ function PCBattle () {
             
         }
         else if(this.state.haste > 0){
-            this.ATBTimer +=15;
+            this.ATBTimer +=20;
             this.state.haste--;
         }
         else this.ATBTimer += 10;
