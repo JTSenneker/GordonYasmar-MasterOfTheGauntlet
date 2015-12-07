@@ -7,9 +7,10 @@ var level;
 var layer;
 var marker;
 var gordonBattle = new PCBattle();
-
+var cursors;
 var BattleAnim;
 var animationInProgress=false;
+var player = new PlayerOW();
 
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
@@ -20,13 +21,14 @@ var overworld = function(){
     this.preload=function(){
         game.load.image("floorTile","imgs/TileSheet.png");
         game.load.image("gordon","imgs/GordonYasmarOverworld.png");
-        player = new PlayerOW();
         
     };
     this.create=function(){
-
-        game.physics.startSystem(Phaser.Physics.ARCADE);
         
+        player.placedOnMap=false;
+       
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        cursors = game.input.keyboard.createCursorKeys();
         
         level=game.add.tilemap();
         level.addTilesetImage('floorTile');
@@ -35,14 +37,9 @@ var overworld = function(){
         level.setCollision(1);
 
         Dungeon.Generate();
+        console.log("loaded");
         player.draw();
-        player.placePlayer();
         
-        var walkables = [1];
-        
-        pathFinder = game.plugins.add(Phaser.Plugin.PathFinderPlugin);
-        pathFinder.setGrid(Dungeon.map,walkables);
-        console.log(level.layers[0].data);
         
         
         
@@ -53,7 +50,8 @@ var overworld = function(){
         game.camera.scale.setTo(1,1);
         game.world.setBounds(0,0,Dungeon.mapSize*32*game.camera.scale.x,Dungeon.mapSize*32*game.camera.scale.y);
         player.sprite.smoothed = false;
-        cursors = game.input.keyboard.createCursorKeys();
+        player.stepsToEncounter=GetRandom(100,1000);
+        player.placePlayer();
         
         
     };
@@ -61,8 +59,10 @@ var overworld = function(){
         game.physics.arcade.collide(player.sprite,layer);
 
         player.update();
-        
-
+        if(player.stepsToEncounter<0){
+           game.state.clearCurrentState(game.state.start("battle"));
+            
+        }
     };
     this.render=function(){};
 };
@@ -195,7 +195,7 @@ var battle = function(){
     function fireSpellButton(){
         if(gordonBattle.mp-20>=0){
             if(animationInProgress===false){
-                gordonBattle.mp-=20;
+                gordonBattle.mp-=0;
                 attackAnimation = game.add.sprite(500,350,'fireSpell',11);
                 attackAnimation.anchor.set(.5);
                 attackAnimation.scale.set(2);
@@ -207,7 +207,7 @@ var battle = function(){
                 BattleAnim.play();
                 gordonBattle.ATBTimer=0;
                 BattleAnim.onComplete.add(function(){
-                        var dmg = Math.floor(((2*gordonBattle.level+10)/100)*(gordonBattle.int/enemy.obj.def)*200+GetRandom(2,8));
+                        var dmg = Math.floor(((2*gordonBattle.level+10)/100)*(gordonBattle.int/enemy.obj.def)*3000+GetRandom(2,8));
                         enemy.obj.hp-=dmg;
                         damageText.text=dmg;
 
@@ -269,7 +269,7 @@ var battle = function(){
             hideButtons();
         }
         
-        console.log(gordonBattle.mp);
+        console.log(gordonBattle.maxXP);
         healthBar.crop(healthCrop);
         manaBar.crop(manaCrop);
         manaCrop.width = (gordonBattle.mp/gordonBattle.maxMP)*188;
@@ -279,6 +279,17 @@ var battle = function(){
         ATBCrop.width = (gordonBattle.ATBTimer/gordonBattle.maxATB)*188;
         enemy.obj.update();
         //console.log(gordonBattle.ATBTimer);
+        if(enemy.obj.hp<=0){
+           
+            animationInProgress=false;
+            gordonBattle.xp+=enemy.obj.xpGiven;
+            if(gordonBattle.xp>gordonBattle.maxXP){
+                gordonBattle.xp = 0;
+                game.state.clearCurrentState(game.state.start("lvlup"));
+            }else {
+                game.state.clearCurrentState(game.state.start("overworld"));
+            }
+        }
     };
     this.render=function(){};
     function revealButtons(){
@@ -324,40 +335,212 @@ var battle = function(){
 };
 
 var title = function(){
+    //setup content objects
     var logo;
     var yasmar;
+    var bg;
+    var buttonNG;
+    var buttonLG;
+    
+    //load content
     this.preload=function(){
-        game.load.image("Logo","imgs/GordonYasmarLogo.png");
-        game.load.image("Yasmar","imgs/YasmarNESColors.png");
+        game.load.image("Logo","imgs/TitleScreen/GordonYasmarLogo.png");
+        game.load.image("Yasmar","imgs/TitleScreen/YasmarNESColors.png");
+        game.load.image("bg","imgs/TitleScreen/background.png");
+        game.load.spritesheet("buttons", "imgs/TitleScreen/titleButtons.png", 150, 14, 4);
     };
+    
+    //create the starting frame of the gamestate
     this.create=function(){
+
         game.stage.backgroundColor = "#eeeeee";
+        bg = game.add.sprite(0,0,"bg");
         logo = game.add.sprite(0,0,"Logo");
         yasmar = game.add.sprite(300,0,"Yasmar");
+        buttonNG = game.add.button(50, 450, "buttons", StartNG, this, 1, 0, 1, 1);
+        buttonLG = game.add.button(50, 470, "buttons", Load, this, 3, 2, 3, 3);
         logo.scale.setTo(.5,.5);
+        bg.scale.setTo(.75, .75);
 
     };
+    //update the gamestate
     this.update=function(){
         
     };
-    this.render=function(){};
-}
-var gameover = function(){
-     this.preload=function(){
-        
+    //additional renders
+    this.render=function(){
+    
     };
+};
+
+//game state that is called when the player levels up after a battle
+var lvlup = function(){
+    //setup content objects
+    var bg;
+    var style;
+    var style2;
+    var points;
+    var vit;
+    var mag;
+    var str;
+    var def;
+    var int;
+    var dex;
+    var eva;
+    var spd;
+    var vit_bttn;
+    var mag_bttn;
+    var str_bttn;
+    var def_bttn;
+    var int_bttn;
+    var dex_bttn;
+    var eva_bttn;
+    var spd_bttn;
+    
+    //load content
+    this.preload=function(){
+        game.load.image("bg","imgs/LvlUp/Level_Up_Gordon.png");
+        game.load.spritesheet("add_bttn", "imgs/LvlUp/Level_Up_Buttons.png", 25, 25, 2);
+    };
+    
+    //create the starting frame of the gamestate
     this.create=function(){
+        game.stage.backgroundColor = "#eeeeee";
         
+        style = { font: "25px Nyala", fill: "#000", align: "right" };
+        style2 = { font: "35px Nyala", fill: "#111243", align: "right" };
+        
+        points = 7;       
+        
+    };
+    //update the gamestate 
+    this.update=function(){      
+        
+        bg = game.add.sprite(0,0,"bg");
+        bg.scale.setTo(.65, .65);
+        
+        vit = game.add.text(700, 196, gordonBattle.vit, style);
+        mag = game.add.text(700, 225, gordonBattle.mag, style);
+        str = game.add.text(700, 252, gordonBattle.str, style);
+        def = game.add.text(700, 282, gordonBattle.def, style);
+        int = game.add.text(700, 310, gordonBattle.int, style);
+        dex = game.add.text(700, 335, gordonBattle.dex, style);
+        eva = game.add.text(700, 360, gordonBattle.eva, style);
+        spd = game.add.text(700, 390, gordonBattle.spd, style);
+        
+        vit_bttn = game.add.button(750,199, "add_bttn", addVit, this, 1, 0, 1, 0);
+        vit_bttn.scale.setTo(.8, .8);
+        mag_bttn = game.add.button(750,228, "add_bttn", addMag, this, 1, 0, 1, 0);
+        mag_bttn.scale.setTo(.8, .8);
+        str_bttn = game.add.button(750,256, "add_bttn", addStr, this, 1, 0, 1, 0);
+        str_bttn.scale.setTo(.8, .8);
+        def_bttn = game.add.button(750,286, "add_bttn", addDef, this, 1, 0, 1, 0);
+        def_bttn.scale.setTo(.8, .8);
+        int_bttn = game.add.button(750,314, "add_bttn", addInt, this, 1, 0, 1, 0);
+        int_bttn.scale.setTo(.8, .8);
+        dex_bttn = game.add.button(750,339, "add_bttn", addDex, this, 1, 0, 1, 0);
+        dex_bttn.scale.setTo(.8, .8);
+        eva_bttn = game.add.button(750,364, "add_bttn", addEva, this, 1, 0, 1, 0);
+        eva_bttn.scale.setTo(.8, .8);
+        spd_bttn = game.add.button(750,394, "add_bttn", addSpd, this, 1, 0, 1, 0);
+        spd_bttn.scale.setTo(.8, .8);
+        
+        pointsText = game.add.text(630, 470, points, style2);
+        
+        if (points <= 0){
+            gordonBattle.level++;
+            gordonBattle.maxXP=(gordonBattle.level+300*Math.pow(2,gordonBattle.level/7))/4;
+            game.state.clearCurrentState(game.state.start("overworld"));
+        }
+    };
+    //additional renders
+    this.render=function(){
+    };
+    
+    function addVit(){
+        gordonBattle.vit ++;
+        points --;
+    }
+    function addMag(){
+        gordonBattle.mag ++;
+        points --;
+    }
+    function addStr(){
+        gordonBattle.str ++;
+        points --;
+    }
+    function addDef(){
+        gordonBattle.def ++;
+        points --;
+    }
+    function addInt(){
+        gordonBattle.int ++;
+        points --;
+    }
+    function addDex(){
+        gordonBattle.dex ++;
+        points --;
+    }
+    function addEva(){
+        gordonBattle.eva ++;
+        points --;
+    }
+    function addSpd(){
+        gordonBattle.spd ++;
+        points --;
+    }
+};
+
+//start screen supplimental functions
+//start a game
+function StartNG(){
+    game.state.add("overworld",overworld);
+    game.state.start("overworld");
+};
+//Load a game
+function Load(){
+    //start a game based on a load hash
+    game.state.add("gameover",gameover);
+    game.state.start("gameover");
+};
+
+//Called when the game is ended, a gate back to the start screen
+var gameover = function(){
+    //setup content objects
+    var bg;
+    var buttonStart;
+    
+    //load content
+    this.preload=function(){
+        game.load.image("bg","imgs/EndScreen/EndScreen.png");
+        game.load.spritesheet("buttons", "imgs/EndScreen/EndScreen_Buttons.png", 345, 38, 3);
+    };
+    
+    //create the starting frame of the gamestate
+    this.create=function(){
+        game.stage.backgroundColor = "#eeeeee";
+        bg = game.add.sprite(0,0,"bg");
+        buttonStart = game.add.button(250, 450, "buttons", StartTitle, this, 1, 0, 2, 1);
+        bg.scale.setTo(.65, .65); 
     };
     this.update=function(){
         
     };
-    this.render=function(){};
+    this.render=function(){
+        
+    };
+};
+
+//start the title screen
+function StartTitle(){
+    game.state.start("title");
 };
 game.state.add("overworld", overworld);
 game.state.add("title", title);
 game.state.add("battle",battle);
-game.state.start("battle");
+game.state.add("lvlup",lvlup);
+game.state.add("gameover",gameover);
+game.state.start("overworld");
 
 ////////////////Dungeon Object//////////////
 var Dungeon = {
@@ -385,9 +568,9 @@ var Dungeon = {
             }
         }
 
-        var roomCount = GetRandom(10,20);
+        var roomCount = 10;
         var minSize = 5;
-        var maxSize = 15;
+        var maxSize = 5;
 
         //create rooms and put them into the rooms array
         for(var i = 0;i<roomCount;i++){
@@ -398,10 +581,10 @@ var Dungeon = {
             room.w = GetRandom(minSize,maxSize);
             room.h = GetRandom(minSize,maxSize);
 
-            if(this.RoomsCollide(room)){
+            /*if(this.RoomsCollide(room)){
                 i--;
                 continue;
-            }
+            }*/
             room.w--;
             room.h--;
 
@@ -492,7 +675,7 @@ var Dungeon = {
 
 ///////////////Overworld Player////////////
 function PlayerOW(){
-    
+    this.stepsToEncounter=100;
     this.gridX = 1;
     this.gridY = 1;
     this.gridTargetX = 32;
@@ -525,13 +708,25 @@ function PlayerOW(){
     }
     this.update=function(){
         this.sprite.body.velocity.set(0);
-        if(cursors.up.isDown)this.sprite.body.velocity.y = -200;
-        if(cursors.down.isDown)this.sprite.body.velocity.y = 200;
-        if(cursors.right.isDown)this.sprite.body.velocity.x = 200;
-        if(cursors.left.isDown)this.sprite.body.velocity.x = -200;
+        if(cursors.up.isDown){
+            this.sprite.body.velocity.y = -200;
+            this.stepsToEncounter--;
+        }
+        if(cursors.down.isDown){
+            this.sprite.body.velocity.y = 200;
+            this.stepsToEncounter--;
+        }
+        if(cursors.right.isDown){
+            this.sprite.body.velocity.x = 200;
+            this.stepsToEncounter--;
+        }
+        if(cursors.left.isDown){
+            this.sprite.body.velocity.x = -200;
+            this.stepsToEncounter--;   
+        }
+    
     };
     
-
 }
 
 function PCBattle () {
@@ -548,7 +743,7 @@ function PCBattle () {
     this.level = 1;
     //PC xp - used to help the player level up
     this.xp = 0;
-    this.maxXP=Math.floor((this.level+300*Math.pow(2,this.level/7))/4);
+    this.maxXP=(this.level+300*Math.pow(2,this.level/7))/4;
     
     //core stats ( can use array structure if preferred)
     //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
@@ -588,6 +783,7 @@ function PCBattle () {
     *updates attack timer for the hero
     */
     this.update = function () {
+        this.maxATB=((this.spd+250)/this.spd)*160;
         if(this.hp>this.maxHP)this.hp=this.maxHP;
         if(this.hp<=0)this.hp=0;
         if(this.mp<=0)this.mp=0;
@@ -705,7 +901,7 @@ function Heinz(){
     this.obj = new NPC();
     this.obj.hp=100;
     this.obj.def=4;
-    this.obj.xpGiven=10;
+    this.obj.xpGiven=100;
     this.obj.baseAtk=25;
     
     this.obj.attack = function(){
