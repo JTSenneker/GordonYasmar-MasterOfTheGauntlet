@@ -1,39 +1,4 @@
 //copied from game.js, functional class to render image to screen
-function Sprite(url) {
-    this.img = new Image();
-    this.x = 0;
-    this.y = 0;
-    this.angle = 0;
-    this.scale = 1;
-    this.anchorX = 0;
-    this.anchorY = 0;
-    this.hasLoaded = false;
-
-    var me = this;
-    /**
-     * Wait until image has loaded to set anchor points
-     */
-    this.img.onload = function(){
-        me.hasLoaded = true;
-        me.anchorX = this.width/2;   
-        me.anchorY = this.height/2;   
-    }
-    this.img.src = url;
-
-    /**
-     * Draw function for sprite, including translate bullshit
-     * @param {graphics} g [[Description]]
-     */
-    this.draw = function(g){
-        if(!this.hasLoaded) return;
-        g.save();
-        g.translate(this.x, this.y);
-        g.rotate(this.angle);
-        g.scale(this.scale, this.scale);
-        g.drawImage(this.img, -this.anchorX, -this.anchorY);
-        g.restore();
-    }
-}
 
 /**
 *Stat listing
