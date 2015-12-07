@@ -69,8 +69,15 @@ article h1{
     margin: 20px;
     margin-bottom: 10px;
 }
-article p {
+article p, article a, article li {
     color: #f5f5eb;
+}
+article a:hover {
+    color: #ad2e4d;
+}
+article p.center {
+    text-align: center;
+    text-indent: 0;
 }
 article h2 {
     font-size: 18px;
@@ -88,6 +95,16 @@ article a h2 {
 }
 article a h2:hover {
     color: #6a6a61;
+}
+ul.center {
+    text-decoration: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+ul.center li{
+    text-align: center;
+    text-indent: 0;
 }
 
 /********************************/

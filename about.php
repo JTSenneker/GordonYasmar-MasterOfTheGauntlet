@@ -31,7 +31,12 @@ Eric Selover
     <div class="col1"></div>
 
     <article class="col10 fillV about" id="TextBox">
-        <div class="col12"><h1>The Team</h1></div>
+        <div class="col12">
+            <div id="solidHorzArticle" ></div>
+            <h1>The Team</h1>
+            <div id="solidHorzArticle" ></div>
+        </div>
+        
         
         <div class="col7">
             <h2>Joe Senneker</h2>
