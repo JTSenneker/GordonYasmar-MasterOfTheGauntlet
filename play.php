@@ -36,7 +36,7 @@ Eric Selover
     
     <? include("footer.php") ?>
 
-    <script src="JS/DungeonGenerator.js"></script>
+    <script src="JS/game.js"></script>
     
 </body>
 </html>
