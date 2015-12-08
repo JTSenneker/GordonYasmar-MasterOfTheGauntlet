@@ -3,7 +3,7 @@ var game = new Phaser.Game(800,600,Phaser.AUTO,'');
 var damageText;
 var attackAnimation;
 var pathFinder;
-var level;
+var level=0;
 var layer;
 var marker;
 var gordonBattle = new PCBattle();
@@ -18,14 +18,18 @@ function GetRandom(min,max){
 }
 
 var overworld = function(){
+    
+   
+    
     this.preload=function(){
         game.load.image("floorTile","imgs/TileSheet.png");
         game.load.image("gordon","imgs/GordonYasmarOverworld.png");
+        game.load.spritesheet("gordonOW","imgs/OverWorld/GordonYasmarOverworld.png",32,32);
         
     };
     this.create=function(){
         
-        player.placedOnMap=false;
+        
        
         game.physics.startSystem(Phaser.Physics.ARCADE);
         cursors = game.input.keyboard.createCursorKeys();
@@ -35,19 +39,19 @@ var overworld = function(){
         layer = level.create('layer',64,64,32,32);
         layer.resizeWorld();
         level.setCollision(1);
-
-        Dungeon.Generate();
-        console.log("loaded");
+        if(Dungeon.map == null){
+            player.placedOnMap=false;
+            Dungeon.Generate();
+            console.log("loaded");
+        }
+        Dungeon.DrawDungeon();
         player.draw();
-        
-        
-        
         
         game.physics.enable(player.sprite,Phaser.Physics.ARCADE);
         player.sprite.body.setSize(25,25,0,0);
         player.sprite.collideWorldBounds=true;
         game.camera.follow(player.sprite);
-        game.camera.scale.setTo(1,1);
+        
         game.world.setBounds(0,0,Dungeon.mapSize*32*game.camera.scale.x,Dungeon.mapSize*32*game.camera.scale.y);
         player.sprite.smoothed = false;
         player.stepsToEncounter=GetRandom(100,1000);
@@ -410,7 +414,7 @@ var lvlup = function(){
         style = { font: "25px Nyala", fill: "#000", align: "right" };
         style2 = { font: "35px Nyala", fill: "#111243", align: "right" };
         
-        points = 7;       
+        points = 5;       
         
     };
     //update the gamestate 
@@ -449,7 +453,7 @@ var lvlup = function(){
         
         if (points <= 0){
             gordonBattle.level++;
-            gordonBattle.maxXP=(gordonBattle.level+300*Math.pow(2,gordonBattle.level/7))/4;
+            gordonBattle.maxXP=(gordonBattle.level+300*Math.pow(2,gordonBattle.level/2))/4;
             game.state.clearCurrentState(game.state.start("overworld"));
         }
     };
@@ -494,14 +498,12 @@ var lvlup = function(){
 //start screen supplimental functions
 //start a game
 function StartNG(){
-    game.state.add("overworld",overworld);
-    game.state.start("overworld");
+   game.state.clearCurrentState(game.state.start("overworld"));
 };
 //Load a game
 function Load(){
     //start a game based on a load hash
-    game.state.add("gameover",gameover);
-    game.state.start("gameover");
+    game.state.clearCurrentState(game.state.start("gameover"));
 };
 
 //Called when the game is ended, a gate back to the start screen
@@ -533,14 +535,14 @@ var gameover = function(){
 
 //start the title screen
 function StartTitle(){
-    game.state.start("title");
+    game.state.clearCurrentState(game.state.start("title"));
 };
 game.state.add("overworld", overworld);
 game.state.add("title", title);
 game.state.add("battle",battle);
 game.state.add("lvlup",lvlup);
 game.state.add("gameover",gameover);
-game.state.start("overworld");
+game.state.start("title");
 
 ////////////////Dungeon Object//////////////
 var Dungeon = {
@@ -561,16 +563,16 @@ var Dungeon = {
     Generate: function(){
         this.map=[];
         for (var x = 0;x<this.mapSize-1;x++){
-            this.map[x]=[];
+            Dungeon.map[x]=[];
             for(var y = 0; y<this.mapSize-1;y++){
-                this.map[x][y] = 0;
-                level.putTile(1,x,y,layer);
+                Dungeon.map[x][y] = 1;
+                //level.putTile(1,x,y,layer);
             }
         }
 
         var roomCount = 10;
         var minSize = 5;
-        var maxSize = 5;
+        var maxSize = 10;
 
         //create rooms and put them into the rooms array
         for(var i = 0;i<roomCount;i++){
@@ -596,7 +598,8 @@ var Dungeon = {
             var room=this.rooms[i];
             for(var x=room.x;x<room.x+room.w;x++){
                 for(var y=room.y;y<room.y+room.h;y++){
-                    level.putTile(0,x,y,layer);
+                    Dungeon.map[x][y] = 0;
+                    //level.putTile(0,x,y,layer);
 
                 }
             }
@@ -618,16 +621,27 @@ var Dungeon = {
                 if(pointB.x>pointA.x)pointB.x--;
                 else if(pointB.x<pointA.x)pointB.x++;
                 else return;
-                level.putTile(0,pointB.x,pointB.y,layer);
+                Dungeon.map[pointB.x][pointB.y] = 0;
+                //level.putTile(0,pointB.x,pointB.y,layer);
 
             }
             while((pointB.y!=pointA.y)){
                 if(pointB.y>pointA.y)pointB.y--;
                 else if(pointB.y<pointA.y) pointB.y++;
                 else return;
-                level.putTile(0,pointB.x,pointB.y,layer);
+                Dungeon.map[pointB.x][pointB.y] = 0;
+                //level.putTile(0,pointB.x,pointB.y,layer);
 
             }
+        }
+        
+    },
+    DrawDungeon:function(){
+        for(var x=0;x<Dungeon.map.length;x++){
+            for(var y=0;y<Dungeon.map.length;y++){
+                level.putTile(Dungeon.map[x][y],x,y,layer);
+                console.log(Dungeon.map[x][y]);
+            }   
         }
     },
 
@@ -671,10 +685,15 @@ var Dungeon = {
         }
         return closest;
     },
+    
 }
 
 ///////////////Overworld Player////////////
 function PlayerOW(){
+    this.playerWalkUp;
+    this.playerWalkDown;
+    this.playerWalkLeft;
+    this.playerWalkRight;
     this.stepsToEncounter=100;
     this.gridX = 1;
     this.gridY = 1;
@@ -698,33 +717,45 @@ function PlayerOW(){
                 player.collideWorldBounds=true;
             }
         }
-        console.log(this.targetTile);
     }
     this.draw=function(){
-        this.sprite = game.add.sprite(this.x,this.y,'gordon');
+        this.sprite = game.add.sprite(this.x,this.y,'gordonOW',1);
         this.sprite.anchor.x=.5;
         this.sprite.anchor.y=.5;
+        this.playerWalkDown=this.sprite.animations.add('walkDown',[0,1,2,1],5,true);
+        this.playerWalkUp=this.sprite.animations.add('walkUp',[3,4,5,4],5,true);
+        this.playerWalkRight=this.sprite.animations.add('walkRight',[6,7,8,7],5,true);
+        this.playerWalkLeft=this.sprite.animations.add('walkLeft',[9,10,11,10],5,true);
 
     }
     this.update=function(){
+        this.x=this.sprite.position.x;
+        this.y=this.sprite.position.y;
         this.sprite.body.velocity.set(0);
         if(cursors.up.isDown){
             this.sprite.body.velocity.y = -200;
             this.stepsToEncounter--;
+            this.sprite.play('walkUp');
         }
-        if(cursors.down.isDown){
+       if(cursors.down.isDown){
             this.sprite.body.velocity.y = 200;
             this.stepsToEncounter--;
+            this.sprite.play('walkDown');
         }
-        if(cursors.right.isDown){
+       if(cursors.right.isDown){
             this.sprite.body.velocity.x = 200;
             this.stepsToEncounter--;
+           this.sprite.play('walkRight');
         }
-        if(cursors.left.isDown){
+       if(cursors.left.isDown){
             this.sprite.body.velocity.x = -200;
-            this.stepsToEncounter--;   
+            this.stepsToEncounter--;
+           this.sprite.play('walkLeft');
         }
-    
+        
+        if(this.sprite.body.velocity.x==0&&this.sprite.body.velocity.y==0){
+            this.sprite.animations.stop();   
+        }
     };
     
 }
@@ -743,7 +774,7 @@ function PCBattle () {
     this.level = 1;
     //PC xp - used to help the player level up
     this.xp = 0;
-    this.maxXP=(this.level+300*Math.pow(2,this.level/7))/4;
+    this.maxXP=(this.level+300*Math.pow(2,this.level/2))/4;
     
     //core stats ( can use array structure if preferred)
     //obj.stat = {vit:1, mag: 1, str: 1, def: 1, int: 1, dex: 1, eva: 1, spd: 1};
@@ -901,8 +932,8 @@ function Heinz(){
     this.obj = new NPC();
     this.obj.hp=100;
     this.obj.def=4;
-    this.obj.xpGiven=100;
-    this.obj.baseAtk=25;
+    this.obj.xpGiven=40;
+    this.obj.baseAtk=75;
     
     this.obj.attack = function(){
         if(animationInProgress===false){
