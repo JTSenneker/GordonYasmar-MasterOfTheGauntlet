@@ -1,4 +1,4 @@
-var game = new Phaser.Game(800,600,Phaser.AUTO,'');
+var game = new Phaser.Game(800,600,Phaser.AUTO,'canvas');
 
 var damageText;
 var attackAnimation;
@@ -11,7 +11,7 @@ var cursors;
 var BattleAnim;
 var animationInProgress=false;
 var player = new PlayerOW();
-
+var boss = new BossOW();
 //////////////Convenience Random Function////////////
 function GetRandom(min,max){
     return~~ (Math.random() * (max - min)) + min;
@@ -24,6 +24,10 @@ var overworld = function(){
     this.preload=function(){
         game.load.image("floorTile","imgs/TileSheet.png");
         game.load.image("gordon","imgs/GordonYasmarOverworld.png");
+        game.load.image("rahman","imgs/OverWorld/RahmanOverworld.png");
+        game.load.image("toille","imgs/OverWorld/toilleOverworld.png");
+        game.load.image("toille","imgs/OverWorld/JohnOverworld.png");
+        game.load.spritesheet("treasureChest","imgs/OverWorld/TreasureChestSheet.png",32,32);
         game.load.spritesheet("gordonOW","imgs/OverWorld/GordonYasmarOverworld.png",32,32);
         
     };
@@ -42,9 +46,10 @@ var overworld = function(){
         if(Dungeon.map == null){
             player.placedOnMap=false;
             Dungeon.Generate();
-            console.log("loaded");
         }
         Dungeon.DrawDungeon();
+        boss.sprite=game.add.sprite(0,0,'rahman');
+        boss.sprite.anchor.set(.5);
         player.draw();
         
         game.physics.enable(player.sprite,Phaser.Physics.ARCADE);
@@ -58,10 +63,11 @@ var overworld = function(){
         player.placePlayer();
         
         
+        boss.placeInRoom();
     };
     this.update=function(){
         game.physics.arcade.collide(player.sprite,layer);
-
+        game.physics.arcade.collide(player.sprite,boss.sprite);
         player.update();
         if(player.stepsToEncounter<0){
            game.state.clearCurrentState(game.state.start("battle"));
@@ -105,9 +111,9 @@ var battle = function(){
         healX:91,
         healY:312
     };
-    
+    var music;
     this.preload=function(){
-        
+        game.load.audio("battleTheme","audio/Music/battle_03_loop.ogg");
         game.load.image("heinz","imgs/Heinz.png");
         game.load.image("hpFrame","imgs/BattleSystem/GUI/HealthBarFrame.png");
         game.load.image("manaFrame","imgs/BattleSystem/GUI/ManaBarFrame.png");
@@ -122,8 +128,12 @@ var battle = function(){
         game.load.spritesheet('iceSpell',"imgs/BattleSystem/Animations/IceSpellEffect.png",256,256);
         game.load.spritesheet("HasteAnim","imgs/BattleSystem/Animations/HasteAnimation.png",117,122);
         game.load.spritesheet("CureSpell","imgs/BattleSystem/Animations/CureSpellEffect.png",64,64);
+        
+      
     };
     this.create=function(){
+        music = game.add.audio('battleTheme');
+        music.loopFull();
         damageText=game.add.text(32,32,"",{fill:'white'});
         game.stage.backgroundColor = "#333333";
         
@@ -147,6 +157,7 @@ var battle = function(){
         buttons.iceButton = game.add.button(-1000,-1000,'buttonSheet',iceSpellButton,this,7,6,8);
         buttons.hasteButton = game.add.button(-1000,-1000,'buttonSheet',hasteSpellButton,this,10,9,11);
         buttons.runButton = game.add.button(-1000,-1000,'buttonSheet',attackButton,this,13,12,14);
+        
         
     };
     /////Call back functions for the buttons
@@ -273,7 +284,7 @@ var battle = function(){
             hideButtons();
         }
         
-        console.log(gordonBattle.maxXP);
+       
         healthBar.crop(healthCrop);
         manaBar.crop(manaCrop);
         manaCrop.width = (gordonBattle.mp/gordonBattle.maxMP)*188;
@@ -282,9 +293,8 @@ var battle = function(){
         ATBBar.crop(ATBCrop);
         ATBCrop.width = (gordonBattle.ATBTimer/gordonBattle.maxATB)*188;
         enemy.obj.update();
-        //console.log(gordonBattle.ATBTimer);
         if(enemy.obj.hp<=0){
-           
+            music.stop();
             animationInProgress=false;
             gordonBattle.xp+=enemy.obj.xpGiven;
             if(gordonBattle.xp>gordonBattle.maxXP){
@@ -640,7 +650,6 @@ var Dungeon = {
         for(var x=0;x<Dungeon.map.length;x++){
             for(var y=0;y<Dungeon.map.length;y++){
                 level.putTile(Dungeon.map[x][y],x,y,layer);
-                console.log(Dungeon.map[x][y]);
             }   
         }
     },
@@ -714,7 +723,7 @@ function PlayerOW(){
                 this.sprite.position.x=spawnTile.worldX+spawnTile.centerX;
                 this.sprite.position.y=spawnTile.worldY+spawnTile.centerY;
                 this.placedOnMap=true;
-                player.collideWorldBounds=true;
+               // player.collideWorldBounds=true;
             }
         }
     }
@@ -729,6 +738,7 @@ function PlayerOW(){
 
     }
     this.update=function(){
+        
         this.x=this.sprite.position.x;
         this.y=this.sprite.position.y;
         this.sprite.body.velocity.set(0);
@@ -759,7 +769,32 @@ function PlayerOW(){
     };
     
 }
-
+function BossOW(){
+    this.sprite;
+    this.x=0;
+    this.y=0;
+    this.placedOnMap= false;
+    this.placeInRoom=function(){
+         while(!this.placedOnMap){
+            var spawnTile = level.getTile(GetRandom(1,63),GetRandom(1,64));
+            
+            if(spawnTile!=null && spawnTile.index==0){
+                this.x=spawnTile.worldX+spawnTile.centerX;
+                this.y=spawnTile.worldY+spawnTile.centerY;
+                
+                game.physics.enable(this.sprite,Phaser.Physics.ARCADE);
+                this.sprite.body.setSize(25,25,0,0);
+                this.sprite.collideWorldBounds=true;
+                this.sprite.body.immovable=true;
+                this.placedOnMap=true;
+                //player.collideWorldBounds=true;
+            }
+         }
+        this.sprite.position.x=this.x
+        this.sprite.position.y=this.y
+        
+    };
+}
 function PCBattle () {
     
     
