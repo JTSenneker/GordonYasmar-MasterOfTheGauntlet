@@ -34,22 +34,31 @@ Eric Selover
         <div id="solidHorzArticle" ></div>
         <h2>Joe</h2>
         <ul class="center">
-            <li><a href="#" target="_blank">something</a> </li>
+            <li><a href="#" target="_blank">Portfolio</a> </li>
+            <li><a href="#" target="_blank">LinkedIn</a> </li>
+            <li><a href="https://github.com/JTSenneker" target="_blank">GitHub</a> </li>
         </ul>
         
         <h2>Eric</h2>
         <ul class="center">
-            <li><a href="#" target="_blank">something</a> </li>
+            <li><a href="#" target="_blank">Portfolio</a> </li>
+            <li><a href="https://www.linkedin.com/in/eric-selover-064aa7104" target="_blank">LinkedIn</a> </li>
+            <li><a href="https://github.com/eselover" target="_blank">GitHub</a> </li>
         </ul>
         
         <h2>Jonathan</h2>
         <ul class="center">
             <li><a href="http://www.championcoding.com" target="_blank">Portfolio</a> </li>
+            <li><a href="http://www.championprogramming.com" target="_blank">Second Portfolio</a> </li>
+            <li><a href="https://www.linkedin.com/in/jonathan-champion-2b6576b0" target="_blank">LinkedIn</a> </li>
+            <li><a href="#" target="_blank">GitHub</a> </li>
         </ul>
         
         <h2>Jacob</h2>
         <ul class="center">
-            <li><a href="#" target="_blank">something</a> </li>
+            <li><a href="#" target="_blank">Portfolio</a> </li>
+            <li><a href="#" target="_blank">LinkedIn</a> </li>
+            <li><a href="https://github.com/Halbridious" target="_blank">GitHub</a> </li>
         </ul>
         
     
@@ -66,11 +75,9 @@ Eric Selover
         </ul>
         <h2>Projects</h2>
         <ul class="center">
-            <li><a href="#" target="_blank">something</a> </li>
-            <li><a href="#" target="_blank">something</a> </li>
-            <li><a href="#" target="_blank">something</a> </li>
-            <li><a href="#" target="_blank">something</a> </li>
-            <li><a href="#" target="_blank">something</a> </li>
+            <li><a href="#" target="_blank">Crazy Cruisers Website</a> </li>
+            <li><a href="#" target="_blank">Gordon Ramsay Road Rage</a> </li>
+            <li><a href="#" target="_blank">Chartizard</a> </li>
         </ul>
         <img src="img/YasmarNESColors.png">
     </article>
