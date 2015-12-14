@@ -44,7 +44,7 @@ Eric Selover
                 <h1>What is <em>Master of the Gauntlet</em>?</h1>
                 <p>Master of the Gauntlet is a JRPG in which our hero, Gordon Yasmar, is thrown into a gauntlet to fight for other people’s amusement. He must survive numerous enemies and challenge the master of the gauntlet, and end these gladiator-like trials.
                 </p>
-                <p>Created in Ferris State Universities Digital Animation and Game Design Multimedia Two class of Fall 2015. The Game was coded entirely in Javascript by a small group of really generally cool people who didn't want to work on the <a>Crazy Cruisers</a> mini-sgame. 
+                <p>Created in Ferris State Universities Digital Animation and Game Design Multimedia Two class of Fall 2015. The Game was coded entirely in Javascript by a small group of really generally cool people who didn't want to work on the <a>Crazy Cruisers</a> mini-game. 
                 </p>
                 
                 
