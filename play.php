@@ -34,7 +34,7 @@ Eric Selover
 <body>
     <? include 'header.php' ?>
 
-    <canvas width="1280" height="720" id="canvas"> </canvas>
+    <div id="canvas"> </div>
     
     <? include("footer.php") ?>
     

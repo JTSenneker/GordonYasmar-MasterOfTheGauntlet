@@ -11,7 +11,7 @@
             <ul>
                 <li><a href="play.php">Play</a> </li>
                 <li><a href="about.php">About</a></li>
-                <li><a href=#>Wiki</a></li>
+                <li><a href="/wiki">Wiki</a></li>
                 <li><a href="links.php">Links</a></li>
             </ul>
         </nav>
